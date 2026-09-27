@@ -1,21 +1,114 @@
-MIT License
+Cascades Proprietary License
+SDK & Integration Terms — Version 1.0
 
 Copyright (c) 2026 Noir Stack LLC
+All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. Scope
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+These terms govern the Cascades SDK, public API contracts, schemas, examples,
+client libraries, developer documentation, and related integration materials
+distributed from this repository (the "SDK Materials").
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+These terms do not grant access to or rights in the private Cascades platform
+source code, execution engine, scheduler, worker implementation, queue
+implementation, persistence implementation, control-plane internals, or other
+private Noir Stack LLC software.
+
+2. Permitted use
+
+Subject to these terms, Noir Stack LLC grants you a limited, non-exclusive,
+non-transferable license to:
+
+- download and install the SDK Materials;
+- use the SDK Materials to build applications, integrations, automations,
+  plugins, and other software that interoperates with Cascades through
+  documented public interfaces;
+- compile, bundle, and distribute your own software that depends on or calls
+  the SDK Materials; and
+- copy API examples and contract snippets into your own integration code where
+  reasonably necessary to use a documented Cascades interface.
+
+Your application or integration remains your property. Cascades and the SDK
+Materials remain the property of Noir Stack LLC.
+
+3. Restrictions
+
+Except with prior written permission from Noir Stack LLC, you may not:
+
+- modify, fork, alter, adapt, or create a derivative distribution of the SDK
+  Materials;
+- republish, mirror, redistribute, sublicense, sell, rent, lease, or make the
+  SDK Materials available as a standalone SDK, library, API product, template,
+  or competing developer platform;
+- remove or obscure copyright, ownership, attribution, or proprietary notices;
+- use the SDK Materials to reconstruct, derive, reverse engineer, or obtain the
+  private Cascades platform implementation, except where such a restriction is
+  prohibited by applicable law;
+- represent the SDK Materials as your own original work; or
+- use Cascades or Noir Stack names, logos, marks, or visual identity in a way
+  that implies sponsorship, endorsement, affiliation, or ownership not
+  authorized in writing.
+
+4. Public contract boundary
+
+Only interfaces explicitly identified in this repository as part of the public
+Cascades developer contract are supported integration surfaces.
+
+The presence of an implementation detail, undocumented endpoint, generated
+artifact, test fixture, or incidental symbol does not make it part of the
+public contract.
+
+5. Contributions
+
+You may prepare modifications solely for the purpose of submitting them to Noir
+Stack LLC as a proposed contribution. This does not grant a right to publish or
+redistribute a modified version of the SDK Materials.
+
+6. Trademarks and brand assets
+
+No trademark, trade dress, logo, or brand rights are granted by these terms.
+Cascades and Noir Stack names, marks, logos, and associated brand materials
+remain proprietary to Noir Stack LLC unless a specific written agreement says
+otherwise.
+
+7. Third-party materials
+
+Third-party software and materials remain subject to their respective licenses
+and rights. These terms do not grant rights that Noir Stack LLC does not own.
+
+8. Ownership
+
+The SDK Materials are licensed, not sold. Noir Stack LLC retains all right,
+title, and interest in the SDK Materials and associated intellectual property,
+except for identified third-party materials.
+
+9. No warranty
+
+THE SDK MATERIALS ARE PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTIES
+OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+
+10. Limitation of liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, NOIR STACK LLC WILL NOT BE LIABLE FOR
+ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE
+DAMAGES, OR FOR LOSS OF DATA, PROFITS, REVENUE, OR BUSINESS OPPORTUNITY,
+ARISING FROM OR RELATED TO THE SDK MATERIALS OR THEIR USE.
+
+11. Termination
+
+Your rights under these terms terminate automatically if you materially violate
+them and do not cure the violation after notice where a cure is reasonably
+possible.
+
+12. Additional permissions
+
+Additional modification, redistribution, sublicensing, commercial SDK
+distribution, white-label, or other rights may be granted separately in
+writing by Noir Stack LLC.
+
+For licensing inquiries:
+info@noirstack.com
+https://cascades.work
+https://noirstack.com
