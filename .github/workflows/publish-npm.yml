@@ -1,9 +1,9 @@
-# Publishes @noirstack/cascades-sdk (mirrored contracts/api.yaml).
+# Publishes @cascades-work/cascades-sdk (mirrored contracts/api.yaml).
 # Requires NPM_TOKEN repository secret (classic automation or granular publish token).
 #
 # Optional later: npm "trusted publisher" / OIDC for GitHub Actions to avoid long-lived tokens.
 
-name: Publish npm @noirstack/cascades-sdk
+name: Publish npm @cascades-work/cascades-sdk
 
 on:
   workflow_dispatch:
