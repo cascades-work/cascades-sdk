@@ -1,8 +1,14 @@
+<p align="center">
+  <a href="https://cascades.work">
+    <img src="https://raw.githubusercontent.com/cascades-work/.github/main/assets/banner.png" alt="Cascades" width="640" />
+  </a>
+</p>
+
 # Cascades SDK (Python)
 
 Official Python client for **[Cascades](https://cascades.work)** — a **governed execution** system. This project is licensed under the **Business Source License 1.1 (BUSL 1.1)**; see **[License](#license)**. The package provides **capture-mode authoring** (`@task` / `@flow`) to build a **serializable DAG**, plus an **HTTP client** aligned with the mirrored OpenAPI contract.
 
-**PyPI:** [`cascades-sdk`](https://pypi.org/project/cascades-sdk/) · **Repository:** [`no1rstack/cascades-sdk`](https://github.com/no1rstack/cascades-sdk) · **HTTP contract (mirrored):** [`contracts/api.yaml`](./contracts/api.yaml) (source of truth: [`no1rstack/cascades`](https://github.com/no1rstack/cascades/blob/main/contracts/api.yaml))
+**PyPI:** [`cascades-sdk`](https://pypi.org/project/cascades-sdk/) · **Repository:** [`cascades-work/cascades-sdk`](https://github.com/cascades-work/cascades-sdk) · **HTTP contract (mirrored):** [`contracts/api.yaml`](./contracts/api.yaml) (source of truth: [`cascades-work/cascades`](https://github.com/cascades-work/cascades/blob/main/contracts/api.yaml))
 
 ## What this library is (and is not)
 
@@ -78,7 +84,7 @@ JSON keys match the deployment and **`contracts/api.yaml`** (camelCase). That is
 
 ## HTTP contract mirror (maintainers)
 
-Canonical upstream: **[`no1rstack/cascades` → `contracts/api.yaml`](https://github.com/no1rstack/cascades/blob/main/contracts/api.yaml)**. Do not hand-edit the copy here; sync and verify. See **[`contracts/README.md`](./contracts/README.md)**, **`RELEASE.md`**, and:
+Canonical upstream: **[`cascades-work/cascades` → `contracts/api.yaml`](https://github.com/cascades-work/cascades/blob/main/contracts/api.yaml)**. Do not hand-edit the copy here; sync and verify. See **[`contracts/README.md`](./contracts/README.md)**, **`RELEASE.md`**, and:
 
 ```bash
 ./scripts/sync_contract.sh ../cascades/contracts/api.yaml
@@ -130,7 +136,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\publish_npm.ps1
 
 ## Contributing
 
-Issues and PRs: **[github.com/no1rstack/cascades-sdk](https://github.com/no1rstack/cascades-sdk/issues)**. For **compiler** edge cases, include a **minimal** `@flow` / `@task` snippet and the DAG you expected vs what `build_dag_from_flow` produced.
+Issues and PRs: **[github.com/cascades-work/cascades-sdk](https://github.com/cascades-work/cascades-sdk/issues)**. For **compiler** edge cases, include a **minimal** `@flow` / `@task` snippet and the DAG you expected vs what `build_dag_from_flow` produced.
 
 ## License
 
