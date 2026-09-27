@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://cascades.work">
-    <img src="https://raw.githubusercontent.com/cascades-work/.github/main/assets/banner.png" alt="Cascades" width="640" />
+    <img src="https://raw.githubusercontent.com/cascades-work/.github/main/assets/branding/social/repository-banner.png" alt="Cascades" width="640" />
   </a>
 </p>
 
