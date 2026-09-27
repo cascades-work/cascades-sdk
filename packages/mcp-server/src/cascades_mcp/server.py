@@ -41,7 +41,7 @@ TOOLS = {
             "type": "object",
             "properties": {
                 "base_url": {"type": "string", "description": "Cascades platform URL"},
-                "session_cookie": {"type": "string", "description": "Auth0 session cookie value"},
+                "session_cookie": {"type": "string", "description": "Session cookie value"},
                 "api_key": {"type": "string", "description": "API key (alternative to session cookie)"},
                 "sdk_version": {"type": "string", "description": "SDK version to check compatibility"},
                 "extension_version": {"type": "string", "description": "VS Code extension version"},
@@ -123,72 +123,6 @@ TOOLS = {
 
 # ─── Tool Handlers ────────────────────────────────────────
 
-WORKFLOW_CATALOG = {
-    "osint-intake": {
-        "name": "OSINT Intake Pipeline",
-        "description": "Poll OSINT connectors (SpiderFoot, Maltego, Shodan, etc.) and submit normalized findings to Judicium.",
-        "version": "1.0.0",
-        "inputs": {
-            "connectors": {
-                "type": "array",
-                "description": "List of connector configurations. Each requires sourceTool (spiderfoot, maltego, shodan, censys, urlscan, virustotal, whois, github) plus type-specific fields like baseUrl, apiKey, filePath.",
-            },
-            "deduplicate": {"type": "boolean", "default": True, "description": "Skip duplicate findings"},
-            "autoSubmit": {"type": "boolean", "default": True, "description": "Auto-submit to Judicium"},
-            "investigationId": {"type": "string", "description": "Judicium investigation ID"},
-        },
-        "outputs": {
-            "totalCollected": "Number of findings collected",
-            "newFindings": "Number of new (non-duplicate) findings",
-            "duplicatesSkipped": "Number of duplicates skipped",
-            "submittedToJudicium": "Number submitted to Judicium",
-        },
-        "dependencies": ["judicium"],
-        "example": {
-            "connectors": [{"sourceTool": "spiderfoot", "baseUrl": "http://localhost:5001", "apiKey": "YOUR_KEY"}],
-            "deduplicate": True,
-            "autoSubmit": True,
-        },
-    },
-    "investigation-workflow": {
-        "name": "Investigation Pipeline",
-        "description": "Full investigation: collect data from sources → analyze with AI → generate Hexarch proof → create Judicium report.",
-        "version": "2.3.0",
-        "inputs": {
-            "investigationId": {"type": "string", "required": True, "description": "Judicium investigation ID"},
-            "sources": {"type": "array", "description": "List of source URLs to collect data from"},
-        },
-        "outputs": {
-            "reportId": "Generated Judicium report ID",
-            "proofIds": "List of Hexarch proof IDs",
-        },
-        "dependencies": ["hexarch", "aitracer"],
-        "example": {
-            "investigationId": "inv-123456",
-            "sources": ["https://feeds.example.com/threat-rss"],
-        },
-    },
-    "evidence-verification": {
-        "name": "Evidence Verification",
-        "description": "Generate a cryptographic Hexarch proof for evidence and attach it to a case in Judicium.",
-        "version": "1.0.0",
-        "inputs": {
-            "evidenceId": {"type": "string", "required": True, "description": "Judicium evidence ID to verify"},
-            "caseId": {"type": "string", "required": True, "description": "Case/investigation ID to attach the proof to"},
-        },
-        "outputs": {
-            "proofId": "Generated Hexarch proof ID",
-            "verified": "Boolean indicating whether the proof was successfully verified",
-        },
-        "dependencies": ["hexarch"],
-        "example": {
-            "evidenceId": "ev-789",
-            "caseId": "case-456",
-        },
-    },
-}
-
-
 def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
     if tool_name == "cascades_diagnostics":
         return handle_diagnostics(arguments)
@@ -253,39 +187,28 @@ def handle_diagnostics(args: Dict[str, Any]) -> Dict[str, Any]:
 
 def handle_workflow_list() -> Dict[str, Any]:
     lines = []
-    lines.append("# Available Workflows")
-    lines.append(f"")
-    for wid, wf in WORKFLOW_CATALOG.items():
-        lines.append(f"## {wf['name']} (`{wid}`)")
-        lines.append(f"**Version:** {wf['version']}")
-        lines.append(f"**Description:** {wf['description']}")
-        lines.append(f"**Dependencies:** {', '.join(wf.get('dependencies', []))}")
-        lines.append(f"")
-        lines.append(f"### Inputs")
-        for name, schema in wf.get("inputs", {}).items():
-            req = " (required)" if schema.get("required") else ""
-            default = f" (default: {schema.get('default', '')})" if "default" in schema else ""
-            lines.append(f"- `{name}`: {schema.get('description', '')}{req}{default}")
-        lines.append(f"")
-        lines.append(f"### Outputs")
-        for name, desc in wf.get("outputs", {}).items():
-            lines.append(f"- `{name}`: {desc}")
-        lines.append(f"")
-        lines.append(f"[Workflow docs]({SDK_WORKFLOWS_URL})")
-        lines.append(f"")
+    lines.append("# Cascades Workflows")
+    lines.append("")
+    lines.append("Workflows are defined in the catalog and listed through the Cascades API.")
+    lines.append("")
+    lines.append("```")
+    lines.append("GET /api/v1/workflows")
+    lines.append("```")
+    lines.append("")
+    lines.append(f"[Workflow docs]({SDK_WORKFLOWS_URL})")
+    lines.append("")
 
     return {"content": [{"type": "text", "text": "\n".join(lines)}]}
 
 
 def handle_workflow_run(args: Dict[str, Any]) -> Dict[str, Any]:
     workflow_id = args.get("workflow_id", "")
-    if workflow_id not in WORKFLOW_CATALOG:
+    if not workflow_id:
         return {
-            "content": [{"type": "text", "text": f"❌ Unknown workflow: '{workflow_id}'. Available: {', '.join(WORKFLOW_CATALOG.keys())}"}],
+            "content": [{"type": "text", "text": "❌ workflow_id is required."}],
             "isError": True,
         }
 
-    wf = WORKFLOW_CATALOG[workflow_id]
     base_url = args.get("base_url", "")
     session_cookie = args.get("session_cookie", "")
 
@@ -295,35 +218,21 @@ def handle_workflow_run(args: Dict[str, Any]) -> Dict[str, Any]:
             "isError": True,
         }
 
-    # Build the API call
     ctx = args.get("context", {})
-    example = wf.get("example", {})
 
     lines = []
-    lines.append(f"# Running `{wf['name']}` (`{workflow_id}`)")
-    lines.append(f"")
-    lines.append(f"To execute this workflow, make a POST request to:")
-    lines.append(f"")
-    lines.append(f"```")
+    lines.append(f"# Running workflow `{workflow_id}`")
+    lines.append("")
+    lines.append("To execute this workflow, make a POST request to:")
+    lines.append("")
+    lines.append("```")
     lines.append(f"POST {base_url or 'https://cascades.work'}/api/v1/workflows/{workflow_id}/run")
-    lines.append(f"Content-Type: application/json")
-    lines.append(f"Cookie: __session=<your-cookie>")
-    lines.append(f"")
-    if ctx:
-        lines.append(json.dumps(ctx, indent=2))
-    else:
-        lines.append(json.dumps(example, indent=2))
-    lines.append(f"```")
-    lines.append(f"")
-    lines.append(f"### Inputs")
-    for name, schema in wf.get("inputs", {}).items():
-        req = " (required)" if schema.get("required") else ""
-        lines.append(f"- `{name}`: {schema.get('description', '')}{req}")
-    lines.append(f"")
-    lines.append(f"### Expected outputs")
-    for name, desc in wf.get("outputs", {}).items():
-        lines.append(f"- `{name}`: {desc}")
-    lines.append(f"")
+    lines.append("Content-Type: application/json")
+    lines.append("Cookie: __session=<your-cookie>")
+    lines.append("")
+    lines.append(json.dumps(ctx, indent=2) if ctx else "{}")
+    lines.append("```")
+    lines.append("")
     lines.append(f"[Workflow docs]({SDK_WORKFLOWS_URL})")
 
     return {"content": [{"type": "text", "text": "\n".join(lines)}]}
@@ -331,55 +240,21 @@ def handle_workflow_run(args: Dict[str, Any]) -> Dict[str, Any]:
 
 def handle_workflow_explain(args: Dict[str, Any]) -> Dict[str, Any]:
     workflow_id = args.get("workflow_id", "")
-    if workflow_id not in WORKFLOW_CATALOG:
-        # Check if it looks like a generic explanation request
-        lines = []
-        lines.append(f"# Workflow: `{workflow_id}`")
-        lines.append(f"")
-        lines.append(f"Workflows are DAGs (directed acyclic graphs) of tasks. Each task is a node;")
-        lines.append(f"edges define the data flow between tasks. The Cascades engine executes the graph")
-        lines.append(f"in topological order, running independent tasks in parallel.")
-        lines.append(f"")
-        lines.append(f"### Built-in workflows:")
-        for wid, wf in WORKFLOW_CATALOG.items():
-            lines.append(f"- `{wid}`: {wf['name']} — {wf['description'][:80]}...")
-        lines.append(f"")
-        lines.append(f"[Workflow docs]({SDK_WORKFLOWS_URL})")
-        return {"content": [{"type": "text", "text": "\n".join(lines)}]}
-
-    wf = WORKFLOW_CATALOG[workflow_id]
     lines = []
-    lines.append(f"# {wf['name']} (`{workflow_id}`)")
-    lines.append(f"")
-    lines.append(f"**Version:** {wf['version']}")
-    lines.append(f"**Description:** {wf['description']}")
-    lines.append(f"**Dependencies:** {', '.join(wf.get('dependencies', []))}")
-    lines.append(f"")
-    lines.append(f"## Required Inputs")
-    for name, schema in wf.get("inputs", {}).items():
-        req = " ⚠️ required" if schema.get("required") else ""
-        default = f" (default: {schema.get('default', '')})" if "default" in schema else ""
-        lines.append(f"- `{name}`{req}: {schema.get('description', '')}{default}")
-    lines.append(f"")
-    lines.append(f"## Outputs")
-    for name, desc in wf.get("outputs", {}).items():
-        lines.append(f"- `{name}`: {desc}")
-    lines.append(f"")
-    lines.append(f"## Example")
-    lines.append(f"```json")
-    lines.append(json.dumps(wf.get("example", {}), indent=2))
-    lines.append(f"```")
-    lines.append(f"")
+    lines.append(f"# Workflow: `{workflow_id}`")
+    lines.append("")
+    lines.append("Workflows are DAGs (directed acyclic graphs) of tasks. Each task is a node;")
+    lines.append("edges define the data flow between tasks. The Cascades engine executes the graph")
+    lines.append("in topological order, running independent tasks in parallel.")
+    lines.append("")
     lines.append(f"[Workflow docs]({SDK_WORKFLOWS_URL})")
     lines.append(f"[API reference]({SDK_API_REFERENCE_URL})")
-
     return {"content": [{"type": "text", "text": "\n".join(lines)}]}
 
 
 def handle_authenticate(args: Dict[str, Any]) -> Dict[str, Any]:
     base_url = args.get("base_url", "https://cascades.work")
-    return {
-        "content": [{"type": "text", "text": f"""
+    text = f"""
 # Cascades Authentication
 
 To authenticate with the Cascades API, you need a session cookie.
@@ -389,7 +264,7 @@ To authenticate with the Cascades API, you need a session cookie.
 1. **Open your Cascades deployment** in a browser:
    → [{base_url}]({base_url})
 
-2. **Log in** via Auth0 (your identity provider).
+2. **Log in** via your identity provider.
 
 3. **Get your session cookie**:
    - Chrome: F12 → Application → Cookies → `{base_url}` → Copy `__session`
@@ -416,8 +291,11 @@ client = CascadesClient("{base_url}", HeaderAuth({{"X-API-Key": "your-key"}}))
 - 403 errors? → Your account may lack permissions.
 
 📖 [Authentication docs]({SDK_AUTH_URL})
-"""}.strip()}
-    ]
+""".strip()
+
+    return {
+        "content": [{"type": "text", "text": text}],
+    }
 
 
 def handle_config_check(args: Dict[str, Any]) -> Dict[str, Any]:
@@ -450,8 +328,7 @@ def handle_config_check(args: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def handle_getting_started() -> Dict[str, Any]:
-    return {
-        "content": [{"type": "text", "text": f"""
+    text = f"""
 # 🚀 Cascades — Getting Started
 
 Welcome! Follow these steps to go from zero to your first workflow execution.
@@ -474,7 +351,7 @@ Run `cascades_config_check` with your base_url and session_cookie.
 Run `cascades_workflow_list` to see what workflows you can execute.
 
 ## Step 5: Run Your First Workflow
-Run `cascades_workflow_run` with `workflow_id: "osint-intake"` and a connector config.
+Run `cascades_workflow_run` with `workflow_id: "your-workflow-id"` and an input context.
 📖 [Workflow docs]({SDK_WORKFLOWS_URL})
 
 ## Step 6: Check Results
@@ -485,8 +362,11 @@ Use the run ID from the workflow execution to check status.
 - 🧪 [Examples]({SDK_EXAMPLES_URL})
 - 🔧 [API reference]({SDK_API_REFERENCE_URL})
 - 🐛 [Report issues](https://github.com/cascades-work/cascades-sdk/issues)
-"""}.strip()}
-    ]
+""".strip()
+
+    return {
+        "content": [{"type": "text", "text": text}],
+    }
 
 
 # ─── MCP Server Main ──────────────────────────────────────
