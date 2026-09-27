@@ -1,7 +1,7 @@
 # Publish to PyPI using OIDC (trusted publisher). No long-lived API token in GitHub secrets.
 #
 # One-time PyPI setup (project → Publishing):
-#   - Add "pending" trusted publisher: Owner no1rstack, repo cascades-sdk, workflow publish-pypi.yml,
+#   - Add "pending" trusted publisher: Owner cascades-work, repo cascades-sdk, workflow publish-pypi.yml,
 #     environment name empty (unless you use the optional GitHub Environment below).
 #   - After first successful run, the publisher activates.
 #

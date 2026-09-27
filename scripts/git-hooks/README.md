@@ -9,12 +9,12 @@ cp scripts/git-hooks/pre-commit-contract.sample .git/hooks/pre-commit
 chmod +x .git/hooks/pre-commit
 ```
 
-If `../cascades/contracts/api.yaml` is missing, the hook **skips** with a short notice (“Skipping contract check…”) so CI and machines without the platform repo still work.
+If `../cascades/apis/cascades.openapi.yaml` is missing, the hook **skips** with a short notice (“Skipping contract check…”) so CI and machines without the platform repo still work.
 
 Point at a non-default platform tree:
 
 ```bash
-export CASCADES_PLATFORM_CONTRACT=/path/to/cascades/contracts/api.yaml
+export CASCADES_PLATFORM_CONTRACT=/path/to/cascades/apis/cascades.openapi.yaml
 ```
 
 Windows (Git Bash): same commands. For PowerShell-only hooks, call `python scripts/verify_contract_mirror.py --against ...` from a `pre-commit` script you maintain yourself.

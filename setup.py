@@ -7,10 +7,10 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="Noir Stack LLC",
-    url="https://github.com/no1rstack/cascades-sdk",
+    url="https://github.com/cascades-work/cascades-sdk",
     project_urls={
         "Documentation": "https://cascades.work/docs",
-        "Source": "https://github.com/no1rstack/cascades-sdk",
+        "Source": "https://github.com/cascades-work/cascades-sdk",
     },
     python_requires=">=3.6",
     install_requires=["requests>=2.25.0"],

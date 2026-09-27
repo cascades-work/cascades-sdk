@@ -2,7 +2,7 @@
 
 Scoped **[noirstack](https://www.npmjs.com/org/noirstack)** package on the public npm registry. This tarball ships the **mirrored HTTP contract** (`contracts/api.yaml`) plus **LICENSE** and a small **ESM entry** for path resolution — aligned with the **[cascades-sdk](https://pypi.org/project/cascades-sdk/)** Python package on PyPI.
 
-The platform source of truth is **[no1rstack/cascades → `contracts/api.yaml`](https://github.com/no1rstack/cascades/blob/main/contracts/api.yaml)**. Sync the mirror in this repo before cutting a release (see the repo root **`README.md`** / **`RELEASE.md`**).
+The platform source of truth is **[cascades-work/cascades → `apis/cascades.openapi.yaml`](https://github.com/cascades-work/cascades/blob/main/apis/cascades.openapi.yaml)**. Sync the mirror in this repo before cutting a release (see the repo root **`README.md`** / **`RELEASE.md`**).
 
 **Bump `version` in this directory’s `package.json` for each npm release** (npm does not allow re-publishing the same version). Prefer **`npm version patch|minor|major`** from **`packages/cascades-sdk`** (see **`RELEASE.md`**).
 

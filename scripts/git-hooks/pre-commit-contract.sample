@@ -5,18 +5,18 @@
 #   chmod +x .git/hooks/pre-commit
 #
 # Override platform path:
-#   export CASCADES_PLATFORM_CONTRACT=/path/to/cascades/contracts/api.yaml
+#   export CASCADES_PLATFORM_CONTRACT=/path/to/cascades/apis/cascades.openapi.yaml
 
 set -eu
 
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT" || exit 1
 
-PLATFORM="${CASCADES_PLATFORM_CONTRACT:-../cascades/contracts/api.yaml}"
+PLATFORM="${CASCADES_PLATFORM_CONTRACT:-../cascades/apis/cascades.openapi.yaml}"
 if [ ! -f "$PLATFORM" ]; then
   echo "Skipping contract check (platform repo not found)."
   echo "  Expected: $PLATFORM"
-  echo "  Set CASCADES_PLATFORM_CONTRACT or clone no1rstack/cascades next to this SDK repo."
+  echo "  Set CASCADES_PLATFORM_CONTRACT or clone cascades-work/cascades next to this SDK repo."
   exit 0
 fi
 

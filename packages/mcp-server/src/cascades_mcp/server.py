@@ -484,7 +484,7 @@ Use the run ID from the workflow execution to check status.
 - 📖 [Full documentation]({SDK_DOCS_URL})
 - 🧪 [Examples]({SDK_EXAMPLES_URL})
 - 🔧 [API reference]({SDK_API_REFERENCE_URL})
-- 🐛 [Report issues](https://github.com/no1rstack/cascades-sdk/issues)
+- 🐛 [Report issues](https://github.com/cascades-work/cascades-sdk/issues)
 """}.strip()}
     ]
 

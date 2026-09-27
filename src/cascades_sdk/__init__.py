@@ -11,7 +11,7 @@ Quick links:
   - 🔑 Authentication:     https://cascades.work/docs/authentication
   - 🔧 Workflow API:       https://cascades.work/docs/api
   - 🧪 Examples:           https://cascades.work/docs/examples
-  - 🐛 Issues:             https://github.com/no1rstack/cascades-sdk/issues
+  - 🐛 Issues:             https://github.com/cascades-work/cascades-sdk/issues
 
 Quick start (30 seconds):
     >>> from cascades_sdk import CascadesClient, SessionCookieAuth

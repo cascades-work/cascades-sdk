@@ -12,7 +12,7 @@ const GETTING_STARTED_URL = `${DOCS_URL}/getting-started`;
 const EXAMPLES_URL = `${DOCS_URL}/examples`;
 const BUILDER_URL = 'https://cascades.work/builder';
 const DASHBOARD_URL = 'https://cascades.work/dashboard';
-const GITHUB_URL = 'https://github.com/no1rstack/cascades-sdk';
+const GITHUB_URL = 'https://github.com/cascades-work/cascades-sdk';
 const ISSUES_URL = `${GITHUB_URL}/issues`;
 
 const CASCADES_VERSION = '2.3.0';
@@ -428,7 +428,7 @@ async function runOsintIntake(): Promise<void> {
     const token = await promptForInput('GitHub Personal Access Token', '', true);
     if (!token) return;
     connectorConfig.apiKey = token;
-    const query = await promptForInput('GitHub search query', 'org:no1rstack osint');
+    const query = await promptForInput('GitHub search query', 'org:cascades-work osint');
     if (query) connectorConfig.query = query;
   }
 

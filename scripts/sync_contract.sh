@@ -4,5 +4,5 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-SRC="${1:-../cascades/contracts/api.yaml}"
+SRC="${1:-../cascades/apis/cascades.openapi.yaml}"
 exec python scripts/sync_contract.py "$SRC"

@@ -15,4 +15,4 @@ verify-contract:
 	python scripts/verify_contract_mirror.py
 
 verify-contract-local:
-	python scripts/verify_contract_mirror.py --against ../cascades/contracts/api.yaml
+	python scripts/verify_contract_mirror.py --against ../cascades/apis/cascades.openapi.yaml

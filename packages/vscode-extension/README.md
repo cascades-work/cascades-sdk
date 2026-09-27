@@ -47,8 +47,8 @@ All error messages include links to the relevant documentation for quick trouble
 - Cascades Platform: https://cascades.work
 - Documentation: https://cascades.work/docs
 - Company: https://noirstack.com
-- Support: https://github.com/no1rstack/cascades-sdk/issues
-- GitHub: https://github.com/no1rstack/cascades-sdk
+- Support: https://github.com/cascades-work/cascades-sdk/issues
+- GitHub: https://github.com/cascades-work/cascades-sdk
 - Extension Repository: `packages/vscode-extension/`
 
 ## Publishing

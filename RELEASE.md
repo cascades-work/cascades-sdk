@@ -2,14 +2,14 @@
 
 Contract changes always flow **platform → SDK** (never edit `contracts/api.yaml` by hand here).
 
-1. **Sync the mirror** (after the platform PR that updates `contracts/api.yaml` is merged — or from your local platform tree):
+1. **Sync the mirror** (after the platform PR that updates `apis/cascades.openapi.yaml` is merged — or from your local platform tree):
 
    ```bash
-   ./scripts/sync_contract.sh ../cascades/contracts/api.yaml
+   ./scripts/sync_contract.sh ../cascades/apis/cascades.openapi.yaml
    # or: make sync-contract
    ```
 
-2. **Confirm CI contract job** passes on your branch (it checks out `no1rstack/cascades` and diffs `contracts/api.yaml`).
+2. **Confirm CI contract job** passes on your branch (it checks out `cascades-work/cascades` and diffs `apis/cascades.openapi.yaml`).
 
 3. **Optional — pin platform for this release**  
    To avoid races with `main`, add `contracts/UPSTREAM_COMMIT` containing a single revision (full SHA recommended). CI will check out that ref when cloning the platform repo. See `contracts/UPSTREAM_COMMIT.example`. Remove or update the file when you intentionally move to a newer platform revision.  
@@ -20,7 +20,7 @@ Contract changes always flow **platform → SDK** (never edit `contracts/api.yam
 5. Build and publish (pick one):
 
    **A — GitHub Actions (recommended, no upload token in GitHub secrets)**  
-   One-time in PyPI → *cascades-sdk* → **Publishing** → **Add a new pending trusted publisher** → GitHub → `no1rstack/cascades-sdk` → workflow **`publish-pypi.yml`** → environment name empty (unless you uncomment `environment: pypi` in that workflow and create the same environment on GitHub).  
+   One-time in PyPI → *cascades-sdk* → **Publishing** → **Add a new pending trusted publisher** → GitHub → `cascades-work/cascades-sdk` → workflow **`publish-pypi.yml`** → environment name empty (unless you uncomment `environment: pypi` in that workflow and create the same environment on GitHub).  
    Then **Actions** → **Publish to PyPI** → *Run workflow*. Set `dry_run` to true to only build and `twine check`.
 
    **B — Local machine**  

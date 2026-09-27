@@ -165,7 +165,7 @@ Next Steps
 - 📖 `Full API Reference <https://cascades.work/docs/api>`_
 - 🔧 `Configuration Guide <https://cascades.work/docs/configuration>`_
 - 🧪 `Examples & Recipes <https://cascades.work/docs/examples>`_
-- 🐛 `Issue Tracker <https://github.com/no1rstack/cascades-sdk/issues>`_
+- 🐛 `Issue Tracker <https://github.com/cascades-work/cascades-sdk/issues>`_
 
 For detailed documentation on each module, use Python's ``help()`` function:
 
