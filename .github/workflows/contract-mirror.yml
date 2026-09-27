@@ -24,13 +24,13 @@ jobs:
         with:
           path: sdk
 
-      - name: Fork PR - skip private platform contract gate
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true
-        run: echo "::notice::Private platform parity is validated by a maintainer before merge."
+      - name: Verify public mirrors agree
+        working-directory: sdk
+        run: python scripts/verify_contract_mirror.py
 
       - name: Resolve platform git ref
         id: platform_ref
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+        if: env.CASCADES_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         working-directory: sdk
         run: |
           set -euo pipefail
@@ -44,16 +44,16 @@ jobs:
           fi
           echo "ref=main" >> "$GITHUB_OUTPUT"
 
-      - name: Require private platform read token
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-        run: |
-          if [ -z "${CASCADES_TOKEN}" ]; then
-            echo "::error::CASCADES_READ_TOKEN is required."
-            exit 1
-          fi
+      - name: Private platform parity unavailable
+        if: env.CASCADES_TOKEN == ''
+        run: echo "::notice::CASCADES_READ_TOKEN is not configured; verified public mirror consistency only."
+
+      - name: Fork PR private parity unavailable
+        if: env.CASCADES_TOKEN != '' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true
+        run: echo "::notice::Fork PR cannot receive private platform credentials; a maintainer must run upstream parity before merge."
 
       - name: Check out private Cascades platform
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+        if: env.CASCADES_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         uses: actions/checkout@v4
         with:
           repository: cascades-work/cascades
@@ -61,7 +61,7 @@ jobs:
           path: platform
           token: ${{ env.CASCADES_TOKEN }}
 
-      - name: Verify public contract mirrors
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+      - name: Verify against private platform source
+        if: env.CASCADES_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         working-directory: sdk
         run: python scripts/verify_contract_mirror.py --against ../platform/apis/cascades.openapi.yaml
