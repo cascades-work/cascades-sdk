@@ -224,7 +224,7 @@ async function gettingStarted(): Promise<void> {
 
   <div class="step">
     <h3><span class="badge">Step 3</span> Try a Command</h3>
-    <p>Run <b>Cascades: List Workflows</b> or <b>Cascades: Run OSINT Intake</b></p>
+    <p>Run <b>Cascades: List Workflows</b> or <b>Cascades: Insert Code Example</b></p>
   </div>
 
   <div class="step">
@@ -370,194 +370,6 @@ async function listWorkflows(): Promise<void> {
   }
 }
 
-async function runOsintIntake(): Promise<void> {
-  const cookie = await checkAuth();
-  if (!cookie) return;
-
-  const config = getConfig();
-
-  const sourceTool = await vscode.window.showQuickPick(
-    [
-      { label: '🕷 SpiderFoot', value: 'spiderfoot' },
-      { label: '🔗 Maltego', value: 'maltego' },
-      { label: '🔍 Shodan', value: 'shodan' },
-      { label: '🌐 Censys', value: 'censys' },
-      { label: '📡 urlscan.io', value: 'urlscan' },
-      { label: '🦠 VirusTotal', value: 'virustotal' },
-      { label: '📋 WHOIS', value: 'whois' },
-      { label: '🐙 GitHub', value: 'github' },
-    ],
-    { placeHolder: 'Select OSINT source', canPickMany: false },
-  );
-
-  if (!sourceTool) return;
-
-  const connectorConfig: Record<string, unknown> = { sourceTool: sourceTool.value };
-  const tool = sourceTool.value;
-
-  if (tool === 'spiderfoot' || tool === 'shodan' || tool === 'censys' || tool === 'urlscan' || tool === 'virustotal' || tool === 'github') {
-    const baseUrl = await promptForInput(`Enter the ${sourceTool.label} server/base URL`, `https://${tool}.example.com`);
-    if (!baseUrl) return;
-    connectorConfig.baseUrl = baseUrl;
-
-    const apiKey = await promptForInput(`Enter your ${sourceTool.label} API key`, '', true);
-    if (!apiKey) return;
-    connectorConfig.apiKey = apiKey;
-
-    if (tool === 'shodan') {
-      const query = await promptForInput('Shodan search query (optional)', 'hostname:example.com');
-      if (query) connectorConfig.query = query;
-    }
-    if (tool === 'virustotal') {
-      const vtType = await vscode.window.showQuickPick(
-        [{ label: 'IP', value: 'ip' }, { label: 'Domain', value: 'domain' }, { label: 'URL', value: 'url' }, { label: 'Hash', value: 'hash' }],
-        { placeHolder: 'VirusTotal indicator type' },
-      );
-      if (vtType) { connectorConfig.type = vtType.value; }
-    }
-  } else if (tool === 'maltego') {
-    const filePath = await promptForInput('Path to Maltego export file', '/path/to/export.csv');
-    if (!filePath) return;
-    connectorConfig.filePath = filePath;
-    connectorConfig.fileFormat = 'csv';
-  } else if (tool === 'whois') {
-    const target = await promptForInput('WHOIS target domain/IP', 'example.com');
-    if (!target) return;
-    connectorConfig.target = target;
-  } else if (tool === 'github') {
-    const token = await promptForInput('GitHub Personal Access Token', '', true);
-    if (!token) return;
-    connectorConfig.apiKey = token;
-    const query = await promptForInput('GitHub search query', 'org:cascades-work osint');
-    if (query) connectorConfig.query = query;
-  }
-
-  const investigationId = await promptForInput('Judicium investigation ID (optional)', 'inv-...');
-  if (investigationId) connectorConfig.investigationId = investigationId;
-
-  vscode.window.withProgress(
-    { location: vscode.ProgressLocation.Notification, title: 'Cascades: Running OSINT intake...', cancellable: true },
-    async (progress, token) => {
-      token.onCancellationRequested(() => { vscode.window.showWarningMessage('Cascades: OSINT intake cancelled.'); });
-
-      try {
-        progress.report({ message: 'Submitting workflow...' });
-
-        const body = {
-          connectors: [connectorConfig],
-          deduplicate: true,
-          autoSubmit: true,
-        };
-        if (investigationId) (body as any).investigationId = investigationId;
-
-        const response = await apiRequest(
-          config.baseUrl,
-          'POST',
-          '/api/v1/osint/intake',
-          body,
-          cookie,
-        );
-
-        if (response.status === 401) {
-          vscode.window.showErrorMessage(formatDocError('Session expired. Re-authenticate.', 'authentication'));
-          return;
-        }
-
-        progress.report({ message: 'Processing complete.' });
-
-        const result = response.data as Record<string, unknown>;
-        const totalCollected = result.totalCollected ?? '?';
-        const newFindings = result.newFindings ?? '?';
-        const duplicatesSkipped = result.duplicatesSkipped ?? '?';
-        const submittedToJudicium = result.submittedToJudicium ?? '?';
-
-        const detail = `Collected: ${totalCollected} | New: ${newFindings} | Duplicates skipped: ${duplicatesSkipped} | Submitted: ${submittedToJudicium}`;
-        vscode.window.showInformationMessage(`Cascades: OSINT intake complete. ${detail}`);
-
-        showResultInEditor(JSON.stringify(result, null, 2), 'json', `cascades-osint-${Date.now()}.json`);
-      } catch (err) {
-        vscode.window.showErrorMessage(formatDocError(
-          `OSINT intake failed: ${(err as Error).message}`,
-          'workflows',
-        ));
-      }
-    },
-  );
-}
-
-async function runInvestigation(): Promise<void> {
-  const cookie = await checkAuth();
-  if (!cookie) return;
-
-  const config = getConfig();
-
-  const investigationId = await promptForInput('Judicium investigation ID', 'inv-123456');
-  if (!investigationId) return;
-
-  const sourcesInput = await promptForInput('Source URLs (comma-separated, optional)', 'https://feeds.example.com/rss');
-  const sources = sourcesInput ? sourcesInput.split(',').map(s => s.trim()).filter(Boolean) : undefined;
-
-  vscode.window.withProgress(
-    { location: vscode.ProgressLocation.Notification, title: 'Cascades: Running investigation...' },
-    async (_progress) => {
-      try {
-        const response = await apiRequest(config.baseUrl, 'POST', `/api/v1/workflows/investigation-workflow/run`, {
-          investigationId,
-          sources,
-        }, cookie);
-
-        const result = response.data as Record<string, unknown>;
-        vscode.window.showInformationMessage(
-          `Cascades: Investigation complete. Report: ${result.reportId || '—'} | Proofs: ${(result.proofIds as string[])?.length || 0}`,
-        );
-        showResultInEditor(JSON.stringify(result, null, 2), 'json', `investigation-${investigationId}.json`);
-      } catch (err) {
-        vscode.window.showErrorMessage(formatDocError(
-          `Investigation failed: ${(err as Error).message}`,
-          'workflows/investigation',
-        ));
-      }
-    },
-  );
-}
-
-async function verifyEvidence(): Promise<void> {
-  const cookie = await checkAuth();
-  if (!cookie) return;
-
-  const config = getConfig();
-
-  const evidenceId = await promptForInput('Evidence ID to verify', 'ev-789');
-  if (!evidenceId) return;
-
-  const caseId = await promptForInput('Case/Investigation ID', 'case-456');
-  if (!caseId) return;
-
-  vscode.window.withProgress(
-    { location: vscode.ProgressLocation.Notification, title: 'Cascades: Verifying evidence...' },
-    async () => {
-      try {
-        const response = await apiRequest(config.baseUrl, 'POST', `/api/v1/workflows/evidence-verification/run`, {
-          evidenceId,
-          caseId,
-        }, cookie);
-
-        const result = response.data as Record<string, unknown>;
-        const verified = result.verified ? '✅ Verified' : '❌ Failed';
-        vscode.window.showInformationMessage(
-          `Cascades: Evidence verification ${verified}. Proof: ${result.proofId || '—'}`,
-        );
-        showResultInEditor(JSON.stringify(result, null, 2), 'json', `evidence-proof-${evidenceId}.json`);
-      } catch (err) {
-        vscode.window.showErrorMessage(formatDocError(
-          `Evidence verification failed: ${(err as Error).message}`,
-          'workflows/evidence-verification',
-        ));
-      }
-    },
-  );
-}
-
 async function showRunStatus(): Promise<void> {
   const cookie = await checkAuth();
   if (!cookie) return;
@@ -603,10 +415,7 @@ async function insertExample(): Promise<void> {
 
   const example = await vscode.window.showQuickPick(
     [
-      { label: '🕷 SpiderFoot OSINT Collection', description: 'Poll SpiderFoot and submit findings', value: 'spiderfoot' },
-      { label: '🔗 Maltego Import', description: 'Parse a Maltego CSV export', value: 'maltego' },
-      { label: '🔬 Full Investigation Pipeline', description: 'Collect → Analyze → Report', value: 'investigation' },
-      { label: '🔐 Evidence Verification', description: 'Generate Hexarch proof', value: 'evidence' },
+      { label: '🚀 Submit a Workflow', description: 'Run a workflow and wait for the result', value: 'submit' },
       { label: '📐 DAG Compilation', description: '@task/@flow decorators', value: 'dag' },
       { label: '⏰ Cron Scheduling', description: 'Schedule recurring workflows', value: 'cron' },
       { label: '⚠️ Error Handling', description: 'Try/except with doc links', value: 'error' },
@@ -617,59 +426,17 @@ async function insertExample(): Promise<void> {
   if (!example) return;
 
   const snippets: Record<string, string> = {
-    spiderfoot: `# ── SpiderFoot OSINT Collection ──
-# Docs: ${WORKFLOWS_URL}/connectors#spiderfoot
+    submit: `# ── Submit and Run a Workflow ──
+# Docs: ${WORKFLOWS_URL}
 
 from cascades_sdk import CascadesClient, SessionCookieAuth
 from cascades_sdk.workflows import submit_and_wait
 
 client = CascadesClient("${getConfig().baseUrl}", SessionCookieAuth("YOUR_SESSION"))
-result = submit_and_wait(client, "osint-intake", {
-    "connectors": [{
-        "sourceTool": "spiderfoot",
-        "baseUrl": "http://localhost:5001",
-        "apiKey": "YOUR_API_KEY",
-    }],
+result = submit_and_wait(client, "your-workflow-id", {
+    "input": "value",
 })
-print(f"Findings: {result}")
-`,
-    maltego: `# ── Maltego Import ──
-# Docs: ${WORKFLOWS_URL}/connectors#maltego
-
-from cascades_sdk import CascadesClient, SessionCookieAuth
-from cascades_sdk.workflows import submit_and_wait
-
-client = CascadesClient("${getConfig().baseUrl}", SessionCookieAuth("YOUR_SESSION"))
-result = submit_and_wait(client, "osint-intake", {
-    "connectors": [{
-        "sourceTool": "maltego",
-        "filePath": "export.csv",
-        "fileFormat": "csv",
-    }],
-})
-print(f"Entities: {result.get('newFindings')}")
-`,
-    investigation: `# ── Full Investigation Pipeline ──
-# Docs: ${WORKFLOWS_URL}/investigation
-
-from cascades_sdk import CascadesClient, SessionCookieAuth
-from cascades_sdk.workflows import run_investigation
-
-client = CascadesClient("${getConfig().baseUrl}", SessionCookieAuth("YOUR_SESSION"))
-result = run_investigation(client, "inv-123", sources=["https://feeds.example.com/rss"])
-print(f"Report: {result.get('reportId')}")
-print(f"Proofs: {result.get('proofIds')}")
-`,
-    evidence: `# ── Evidence Verification with Hexarch Proof ──
-# Docs: ${WORKFLOWS_URL}/evidence-verification
-
-from cascades_sdk import CascadesClient, SessionCookieAuth
-from cascades_sdk.workflows import verify_evidence
-
-client = CascadesClient("${getConfig().baseUrl}", SessionCookieAuth("YOUR_SESSION"))
-result = verify_evidence(client, evidence_id="ev-789", case_id="case-456")
-print(f"Verified: {result.get('verified')}")
-print(f"Proof ID: {result.get('proofId')}")
+print(f"Result: {result}")
 `,
     dag: `# ── DAG Compilation with @task/@flow ──
 # Docs: ${WORKFLOWS_URL}/dag
@@ -678,22 +445,22 @@ from cascades_sdk import task, flow
 from cascades_sdk.compiler import build_dag_from_flow, canonical_json
 
 @task
-def fetch(ip: str) -> str: return f"report for {ip}"
+def fetch(value: str) -> str: return f"fetched {value}"
 
 @task
-def enrich(ip: str) -> str: return f"shodan for {ip}"
+def transform(value: str) -> str: return f"transformed {value}"
 
 @task
-def merge(ip: str, a: str, b: str) -> dict:
-    return {"ip": ip, "report": a, "shodan": b}
+def merge(value: str, a: str, b: str) -> dict:
+    return {"input": value, "a": a, "b": b}
 
 @flow
-def pipeline(ip: str) -> dict:
-    r = fetch(ip)
-    s = enrich(ip)
-    return merge(ip, r, s)
+def pipeline(value: str) -> dict:
+    a = fetch(value)
+    b = transform(value)
+    return merge(value, a, b)
 
-dag = build_dag_from_flow(pipeline, {"ip": "8.8.8.8"})
+dag = build_dag_from_flow(pipeline, {"value": "example"})
 print(canonical_json(dag))
 `,
     cron: `# ── Schedule a Recurring Workflow ──
@@ -704,9 +471,9 @@ import requests
 response = requests.post(
     "${getConfig().baseUrl}/api/v1/triggers",
     json={
-        "workflowId": "osint-intake",
+        "workflowId": "your-workflow-id",
         "schedule": "0 * * * *",
-        "inputs": {"connectors": [{"sourceTool": "spiderfoot", "baseUrl": "http://localhost:5001", "apiKey": "..."}]},
+        "inputs": {"input": "value"},
     },
     cookies={"__session": "YOUR_SESSION"},
 )
@@ -722,7 +489,7 @@ from cascades_sdk.workflows import submit_and_wait
 client = CascadesClient("${getConfig().baseUrl}", SessionCookieAuth("YOUR_SESSION"))
 
 try:
-    result = submit_and_wait(client, "osint-intake", {"connectors": [...]})
+    result = submit_and_wait(client, "your-workflow-id", {"input": "value"})
 except AuthenticationError as e:
     print(f"Auth failed — re-login at ${AUTH_URL}")
     print(e)
@@ -757,9 +524,6 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('cascades.openBuilder', openBuilder),
     vscode.commands.registerCommand('cascades.showDocumentation', openDocumentation),
     vscode.commands.registerCommand('cascades.listWorkflows', listWorkflows),
-    vscode.commands.registerCommand('cascades.runOsintIntake', runOsintIntake),
-    vscode.commands.registerCommand('cascades.runInvestigation', runInvestigation),
-    vscode.commands.registerCommand('cascades.verifyEvidence', verifyEvidence),
     vscode.commands.registerCommand('cascades.showRunStatus', showRunStatus),
     vscode.commands.registerCommand('cascades.insertExample', insertExample),
     vscode.commands.registerCommand('cascades.about', about),

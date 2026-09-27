@@ -1,7 +1,7 @@
 {
   "name": "cascades-workflow",
   "displayName": "Cascades",
-  "description": "OSINT workflow engine for the Noir Stack platform. Submit workflows, poll connectors, verify evidence, and manage OSINT pipelines from VS Code.",
+  "description": "Cascades workflow and orchestration client for VS Code. Browse, run, and monitor workflows directly from the editor.",
   "version": "0.1.0",
   "publisher": "Cascades",
   "license": "SEE LICENSE IN LICENSE",
@@ -34,13 +34,9 @@
   "keywords": [
     "cascades",
     "workflow",
-    "osint",
     "orchestration",
     "dag",
-    "noirstack",
-    "spiderfoot",
-    "maltego",
-    "judicium"
+    "noirstack"
   ],
   "galleryBanner": {
     "color": "#0B0C0E",
@@ -73,21 +69,6 @@
       {
         "command": "cascades.listWorkflows",
         "title": "Cascades: List Workflows",
-        "category": "Cascades"
-      },
-      {
-        "command": "cascades.runOsintIntake",
-        "title": "Cascades: Run OSINT Intake",
-        "category": "Cascades"
-      },
-      {
-        "command": "cascades.runInvestigation",
-        "title": "Cascades: Run Investigation",
-        "category": "Cascades"
-      },
-      {
-        "command": "cascades.verifyEvidence",
-        "title": "Cascades: Verify Evidence",
         "category": "Cascades"
       },
       {
