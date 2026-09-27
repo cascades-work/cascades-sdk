@@ -1,5 +1,5 @@
 #Requires -Version 5.0
-# Publish @noirstack/cascades-sdk to the npm registry from the cascades-sdk repo.
+# Publish @cascades-work/cascades-sdk to the npm registry from the cascades-sdk repo.
 # Loads NPM_TOKEN / NODE_AUTH_TOKEN from a .env-style file (values are not echoed).
 #
 # Env file resolution (first match wins) — same defaults as publish_pypi.ps1:
@@ -95,7 +95,7 @@ if (Test-Path -LiteralPath $genLicense) {
 
 Set-Location $PkgRoot
 
-Write-Host "Publishing @noirstack/cascades-sdk@$ReleaseVersion from $PkgRoot"
+Write-Host "Publishing @cascades-work/cascades-sdk@$ReleaseVersion from $PkgRoot"
 
 $publishArgs = @("publish", "--access", "public")
 if ($DryRun) {
