@@ -4,7 +4,7 @@
   "description": "OSINT workflow engine for the Noir Stack platform. Submit workflows, poll connectors, verify evidence, and manage OSINT pipelines from VS Code.",
   "version": "0.1.0",
   "publisher": "Cascades",
-  "license": "BUSL-1.1",
+  "license": "SEE LICENSE IN LICENSE",
   "author": {
     "name": "Noir Stack LLC",
     "url": "https://noirstack.com"

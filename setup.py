@@ -6,7 +6,6 @@ setup(
     description="Python SDK for Cascades: capture-mode @task/@flow DAG compiler and thin HTTP client",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    license="BUSL-1.1",
     author="Noir Stack LLC",
     url="https://github.com/no1rstack/cascades-sdk",
     project_urls={
