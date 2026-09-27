@@ -13,7 +13,7 @@ class Auth(Protocol):
 
 class SessionCookieAuth:
     """
-    ``cookieSession`` scheme: Auth0-style session cookie (contract default name ``__session``).
+    ``cookieSession`` scheme: session cookie (contract default name ``__session``).
 
     Pass the raw cookie **value** only, or use :class:`CookieHeaderAuth` for a full ``Cookie`` header
     copied from the browser.

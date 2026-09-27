@@ -17,7 +17,7 @@ Quick start (30 seconds):
     >>> from cascades_sdk import CascadesClient, SessionCookieAuth
     >>> from cascades_sdk.workflows import submit_and_wait
     >>> client = CascadesClient("https://cascades.work", SessionCookieAuth("my-session"))
-    >>> result = submit_and_wait(client, "osint-intake", {"connectors": [...]})
+    >>> result = submit_and_wait(client, "your-workflow-id", {"input": "value"})
     >>> print(result)
 """
 

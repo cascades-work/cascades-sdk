@@ -20,8 +20,8 @@ Quick Start (30 seconds)
     )
 
     # 2. Run a workflow
-    result = submit_and_wait(client, "osint-intake", {
-        "connectors": [{"sourceTool": "spiderfoot", "baseUrl": "...", "apiKey": "..."}]
+    result = submit_and_wait(client, "your-workflow-id", {
+        "input": "value"
     })
     print("Done!", result)
 
@@ -39,12 +39,12 @@ Requires Python 3.8+ and the ``requests`` library (installed automatically).
 Step 1: Authentication
 ----------------------
 
-Cascades uses Auth0 session cookies for API authentication.
+Cascades uses session cookies for API authentication.
 
 **Getting your session cookie:**
 
 1. Open your Cascades deployment in a browser (e.g. https://cascades.work)
-2. Log in via Auth0
+2. Log in via your identity provider
 3. Open Developer Tools (F12) → Application → Cookies
 4. Copy the ``__session`` cookie value
 5. Pass it to the SDK:
@@ -91,41 +91,31 @@ If this succeeds, your client is properly configured.
 Step 3: Run Your First Workflow
 -------------------------------
 
-The simplest workflow is ``osint-intake``, which polls OSINT connectors
-and submits findings to Judicium.
+Run any workflow from the catalog by ID and wait for the result.
 
 .. code-block:: python
 
     from cascades_sdk.workflows import submit_and_wait
 
-    result = submit_and_wait(client, "osint-intake", {
-        "connectors": [{"sourceTool": "spiderfoot", "baseUrl": "...", "apiKey": "..."}],
-        "deduplicate": True,
-        "autoSubmit": True,
+    result = submit_and_wait(client, "your-workflow-id", {
+        "input": "value",
     })
-    print(f"Collected {result['totalCollected']} findings")
+    print(f"Run finished with status {result['status']}")
 
 📖 `Workflow docs <https://cascades.work/docs/workflows>`_
 
 
-Step 4: Explore Other Workflows
--------------------------------
+Step 4: Browse the Workflow Catalog
+-----------------------------------
 
-The Cascades platform includes several built-in workflows:
-
-- **osint-intake** — Poll OSINT connectors and submit to Judicium
-- **investigation-workflow** — Full investigation pipeline (collect → analyze → report)
-- **evidence-verification** — Generate cryptographic proofs for evidence
+List the workflows available on your deployment:
 
 .. code-block:: python
 
-    from cascades_sdk.workflows import run_investigation, verify_evidence
+    from cascades_sdk.workflows import list_workflows
 
-    # Run an investigation
-    result = run_investigation(client, investigation_id="your-investigation-id")
-
-    # Verify evidence with a cryptographic proof
-    result = verify_evidence(client, evidence_id="ev-123", case_id="case-456")
+    catalog = list_workflows(client)
+    print(catalog)
 
 
 Step 5: DAG Compilation (Advanced)

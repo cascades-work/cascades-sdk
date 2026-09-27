@@ -7,9 +7,9 @@ and step-by-step comments.
 """
 
 # ────────────────────────────────────────────────────────────
-# Example 1: OSINT Collection with SpiderFoot
+# Example 1: Submit and Run a Workflow
 # ────────────────────────────────────────────────────────────
-OSINT_SPIDERFOOT_EXAMPLE = """
+SUBMIT_WORKFLOW_EXAMPLE = """
 from cascades_sdk import CascadesClient, SessionCookieAuth
 from cascades_sdk.workflows import submit_and_wait
 
@@ -19,131 +19,49 @@ client = CascadesClient(
     SessionCookieAuth("your-session-cookie"),
 )
 
-# Configure SpiderFoot connector
-result = submit_and_wait(client, "osint-intake", {
-    "connectors": [{
-        "sourceTool": "spiderfoot",
-        "baseUrl": "http://your-spiderfoot-server:5001",
-        "apiKey": "your-spiderfoot-api-key",
-        "scanType": "FINISHED",
-    }],
-    "deduplicate": True,
-    "autoSubmit": True,
-}, timeout=7200)
-
-print(f"Total collected: {result.get('totalCollected', '?')}")
-print(f"New findings: {result.get('newFindings', '?')}")
-print(f"Duplicates skipped: {result.get('duplicatesSkipped', '?')}")
-print(f"Submitted to Judicium: {result.get('submittedToJudicium', '?')}")
-"""
-
-# ────────────────────────────────────────────────────────────
-# Example 2: Maltego Import
-# ────────────────────────────────────────────────────────────
-MALTEGO_IMPORT_EXAMPLE = """
-from cascades_sdk import CascadesClient, SessionCookieAuth
-from cascades_sdk.workflows import submit_and_wait
-
-client = CascadesClient(
-    "https://your-cascades-instance.example.com",
-    SessionCookieAuth("your-session-cookie"),
-)
-
-# Import a Maltego CSV export
-result = submit_and_wait(client, "osint-intake", {
-    "connectors": [{
-        "sourceTool": "maltego",
-        "filePath": "/path/to/export.csv",
-        "fileFormat": "csv",
-    }],
-    "deduplicate": True,
-    "autoSubmit": True,
+# Submit a workflow and wait for it to reach a terminal state
+result = submit_and_wait(client, "your-workflow-id", {
+    "input": "value",
 })
 
-print(f"Imported entities: {result.get('newFindings', '?')}")
+print(f"Run completed with status: {result.get('status', '?')}")
 """
 
 # ────────────────────────────────────────────────────────────
-# Example 3: Investigation Pipeline
-# ────────────────────────────────────────────────────────────
-INVESTIGATION_EXAMPLE = """
-from cascades_sdk import CascadesClient, SessionCookieAuth
-from cascades_sdk.workflows import run_investigation
-
-client = CascadesClient(
-    "https://your-cascades-instance.example.com",
-    SessionCookieAuth("your-session-cookie"),
-)
-
-# Run a full investigation
-result = run_investigation(
-    client,
-    investigation_id="inv-123456",
-    sources=["https://feeds.example.com/threat-rss"],
-)
-
-print(f"Report ID: {result.get('reportId', '?')}")
-print(f"Proof IDs: {result.get('proofIds', [])}")
-"""
-
-# ────────────────────────────────────────────────────────────
-# Example 4: Evidence Verification with Hexarch Proof
-# ────────────────────────────────────────────────────────────
-EVIDENCE_VERIFICATION_EXAMPLE = """
-from cascades_sdk import CascadesClient, SessionCookieAuth
-from cascades_sdk.workflows import verify_evidence
-
-client = CascadesClient(
-    "https://your-cascades-instance.example.com",
-    SessionCookieAuth("your-session-cookie"),
-)
-
-# Generate and attach a cryptographic proof
-result = verify_evidence(
-    client,
-    evidence_id="ev-789",
-    case_id="case-456",
-)
-
-print(f"Proof ID: {result.get('proofId', '?')}")
-print(f"Verified: {result.get('verified', False)}")
-"""
-
-# ────────────────────────────────────────────────────────────
-# Example 5: DAG Compilation with @task and @flow
+# Example 2: DAG Compilation with @task and @flow
 # ────────────────────────────────────────────────────────────
 DAG_COMPILATION_EXAMPLE = """
 from cascades_sdk import task, flow
 from cascades_sdk.compiler import build_dag_from_flow, canonical_json
 
 @task
-def fetch_ip_report(ip: str) -> str:
+def fetch(value: str) -> str:
     # In capture mode, this function is NOT executed.
     # Return type hints help document the data flow.
-    return f"report for {ip}"
+    return f"fetched {value}"
 
 @task
-def enrich_with_shodan(ip: str) -> str:
-    return f"shodan data for {ip}"
+def transform(value: str) -> str:
+    return f"transformed {value}"
 
 @task
-def merge_findings(ip: str, report: str, shodan: str) -> dict:
-    return {"ip": ip, "report": report, "shodan": shodan}
+def merge(value: str, a: str, b: str) -> dict:
+    return {"input": value, "a": a, "b": b}
 
 @flow
-def osint_pipeline(ip: str) -> dict:
-    report = fetch_ip_report(ip)
-    shodan = enrich_with_shodan(ip)
-    return merge_findings(ip, report, shodan)
+def pipeline(value: str) -> dict:
+    a = fetch(value)
+    b = transform(value)
+    return merge(value, a, b)
 
 # Compile the DAG — note: no real API calls are made
-dag = build_dag_from_flow(osint_pipeline, {"ip": "8.8.8.8"})
+dag = build_dag_from_flow(pipeline, {"value": "example"})
 
 # dag = {
 #     "nodes": [
-#         {"id": "node-0", "task_name": "fetch_ip_report", "dependencies": []},
-#         {"id": "node-1", "task_name": "enrich_with_shodan", "dependencies": []},
-#         {"id": "node-2", "task_name": "merge_findings", "dependencies": ["node-0", "node-1"]},
+#         {"id": "node-0", "task_name": "fetch", "dependencies": []},
+#         {"id": "node-1", "task_name": "transform", "dependencies": []},
+#         {"id": "node-2", "task_name": "merge", "dependencies": ["node-0", "node-1"]},
 #     ],
 #     "edges": [
 #         {"from": "node-0", "to": "node-2"},
@@ -153,26 +71,26 @@ dag = build_dag_from_flow(osint_pipeline, {"ip": "8.8.8.8"})
 #     "entrypoints": {"default": {"node": "node-0"}},
 # }
 
-# fetch_ip_report and enrich_with_shodan run in parallel (no dependency)
-# merge_findings runs after both complete
+# fetch and transform run in parallel (no dependency)
+# merge runs after both complete
 # Canonical JSON for deterministic comparison
 print(canonical_json(dag))
 """
 
 # ────────────────────────────────────────────────────────────
-# Example 6: Scheduled Cron Workflow
+# Example 3: Scheduled Cron Workflow
 # ────────────────────────────────────────────────────────────
 SCHEDULED_WORKFLOW_EXAMPLE = """
 import requests
 
-# Create a trigger for hourly OSINT collection
+# Create a trigger for a recurring workflow
 response = requests.post(
     "https://your-cascades-instance.example.com/api/v1/triggers",
     json={
-        "workflowId": "osint-intake",
+        "workflowId": "your-workflow-id",
         "schedule": "0 * * * *",  # every hour
         "inputs": {
-            "connectors": [{"sourceTool": "spiderfoot", "baseUrl": "...", "apiKey": "..."}],
+            "input": "value",
         },
     },
     cookies={"__session": "your-session-cookie"},
@@ -181,7 +99,7 @@ print(response.json())
 """
 
 # ────────────────────────────────────────────────────────────
-# Example 7: Error Handling
+# Example 4: Error Handling
 # ────────────────────────────────────────────────────────────
 ERROR_HANDLING_EXAMPLE = """
 from cascades_sdk import CascadesClient, SessionCookieAuth
@@ -199,9 +117,7 @@ client = CascadesClient(
 )
 
 try:
-    result = submit_and_wait(client, "osint-intake", {
-        "connectors": [{"sourceTool": "spiderfoot", "baseUrl": "...", "apiKey": "..."}]
-    })
+    result = submit_and_wait(client, "your-workflow-id", {"input": "value"})
 except AuthenticationError as e:
     print(f"Auth failed: {e}")
     print("→ Re-login and get a fresh session cookie")

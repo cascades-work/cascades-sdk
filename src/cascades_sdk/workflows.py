@@ -94,115 +94,11 @@ def submit_and_get_run(
     return client.submit_workflow_run(body)
 
 
-def run_osint_intake(
-    client: CascadesClient,
-    connectors: list[Dict[str, Any]],
-    *,
-    investigation_id: Optional[str] = None,
-    deduplicate: bool = True,
-    auto_submit: bool = True,
-    timeout: float = 7200.0,
-) -> Dict[str, Any]:
-    """Submit an OSINT intake workflow that polls connectors and submits to Judicium.
-
-    This is a convenience wrapper around the ``osint-intake`` workflow.
-
-    Args:
-        client: An authenticated :class:`CascadesClient` instance.
-        connectors: List of connector configurations. Each entry should have
-            ``sourceTool`` (e.g. ``"spiderfoot"``, ``"maltego"``,
-            ``"shodan"``) and source-specific fields like ``baseUrl``,
-            ``apiKey``, ``filePath``, etc.
-        investigation_id: Optional Judicium investigation ID to associate
-            findings with.
-        deduplicate: Whether to skip duplicate findings (default True).
-        auto_submit: Whether to automatically submit findings to Judicium
-            (default True).
-        timeout: Maximum time in seconds to wait for completion
-            (default 2 hours for long OSINT collections).
-
-    Returns:
-        The terminal event dict with collection statistics.
-
-    Example:
-        >>> result = run_osint_intake(client, [
-        ...     {"sourceTool": "spiderfoot", "baseUrl": "...", "apiKey": "..."},
-        ...     {"sourceTool": "maltego", "filePath": "export.csv", "fileFormat": "csv"},
-        ... ])
-        >>> print(f"Collected {result['totalCollected']} findings")
-
-    See Also:
-        - Connector configuration reference: {SDK_WORKFLOWS_URL}/connectors
-        - Judicium integration guide: https://cascades.work/docs/judicium
-    """
-    context: Dict[str, Any] = {
-        "connectors": connectors,
-        "deduplicate": deduplicate,
-        "autoSubmit": auto_submit,
-    }
-    if investigation_id is not None:
-        context["investigationId"] = investigation_id
-    return submit_and_wait(client, "osint-intake", context, timeout=timeout)
-
-
-def run_investigation(
-    client: CascadesClient,
-    investigation_id: str,
-    sources: Optional[list[str]] = None,
-    timeout: float = 3600.0,
-) -> Dict[str, Any]:
-    """Run an investigation workflow: collect → analyze → report.
-
-    Args:
-        client: An authenticated :class:`CascadesClient` instance.
-        investigation_id: The Judicium investigation ID.
-        sources: Optional list of source URLs to collect data from.
-            Falls back to placeholder data if empty.
-        timeout: Maximum wait time in seconds.
-
-    Returns:
-        Terminal event with ``reportId`` and ``proofIds``.
-
-    See Also:
-        - Investigation workflow docs: {SDK_WORKFLOWS_URL}/investigation
-    """
-    context: Dict[str, Any] = {"investigationId": investigation_id}
-    if sources is not None:
-        context["sources"] = sources
-    return submit_and_wait(client, "investigation-workflow", context, timeout=timeout)
-
-
-def verify_evidence(
-    client: CascadesClient,
-    evidence_id: str,
-    case_id: str,
-    timeout: float = 300.0,
-) -> Dict[str, Any]:
-    """Verify evidence by generating a cryptographic proof and attaching it to a case.
-
-    Args:
-        client: An authenticated :class:`CascadesClient` instance.
-        evidence_id: The Judicium evidence ID to verify.
-        case_id: The Judicium case/investigation ID.
-        timeout: Maximum wait time in seconds.
-
-    Returns:
-        Terminal event with ``proofId`` and ``verified`` boolean.
-
-    See Also:
-        - Evidence verification docs: {SDK_WORKFLOWS_URL}/evidence-verification
-        - Hexarch proof system: https://cascades.work/docs/hexarch
-    """
-    context = {"evidenceId": evidence_id, "caseId": case_id}
-    return submit_and_wait(client, "evidence-verification", context, timeout=timeout)
-
-
 def list_workflows(client: CascadesClient) -> list[Dict[str, Any]]:
     """List all available workflow definitions from the catalog.
 
     Uses the Cascades API to fetch the workflow catalog. Returns both
-    built-in workflows (investigation, evidence-verification, osint-intake)
-    and any user-created workflows.
+    built-in workflows and any user-created workflows.
 
     Args:
         client: An authenticated :class:`CascadesClient` instance.
