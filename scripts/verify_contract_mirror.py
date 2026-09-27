@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify public SDK OpenAPI mirrors against the private Cascades platform."""
+"""Verify Cascades public OpenAPI mirrors, optionally against the private platform."""
 
 from __future__ import annotations
 import argparse
@@ -18,18 +18,30 @@ def read(path: Path) -> bytes:
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
-    parser.add_argument("--against", type=Path, required=True)
+    parser.add_argument("--against", type=Path, default=None)
     args = parser.parse_args()
+
+    preferred = root / "api" / "openapi.yaml"
+    compatibility = root / "contracts" / "api.yaml"
+    preferred_bytes = read(preferred)
+    compatibility_bytes = read(compatibility)
+
+    if preferred_bytes != compatibility_bytes:
+        print("error: api/openapi.yaml and contracts/api.yaml differ", file=sys.stderr)
+        return 1
+    print("OK: public OpenAPI mirrors agree")
+
+    if args.against is None:
+        return 0
+
     source = args.against.resolve()
     expected = read(source)
-    failed = False
-    for mirror in (root / "api" / "openapi.yaml", root / "contracts" / "api.yaml"):
-        if read(mirror) != expected:
-            print(f"error: {mirror.relative_to(root)} differs from {source}", file=sys.stderr)
-            failed = True
-        else:
-            print(f"OK: {mirror.relative_to(root)} matches {source}")
-    return 1 if failed else 0
+    if preferred_bytes != expected:
+        print(f"error: public OpenAPI differs from private source {source}", file=sys.stderr)
+        return 1
+
+    print(f"OK: public OpenAPI matches private source {source}")
+    return 0
 
 if __name__ == "__main__":
     raise SystemExit(main())
