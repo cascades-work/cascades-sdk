@@ -1,5 +1,5 @@
 # Validates the publishable JS surfaces before exposure:
-# - the @noirstack/cascades-sdk npm workspace package (pack + build)
+# - the @cascades-work/cascades-sdk npm workspace package (pack + build)
 # - the VS Code extension (compile, typecheck, VSIX packaging)
 #
 # Both run off-host on GitHub runners; nothing here publishes.
