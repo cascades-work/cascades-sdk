@@ -37,10 +37,10 @@ Contract changes always flow **platform → SDK** (never edit `contracts/api.yam
 
    PyPI does not allow re-uploading the same version — bump **`pyproject.toml`** and **`src/cascades_sdk/_meta.py`** (`__version__`) together before each release.
 
-6. **Optional — npm scoped package (`@noirstack/cascades-sdk`)**  
+6. **Optional — npm scoped package (`@cascades-work/cascades-sdk`)**  
    Publishes the mirrored **`contracts/api.yaml`**, **`LICENSE`**, and a small **ESM** entry (`index.js` / `index.d.ts`) for JS/TS tooling. **`package.json` → `files`** limits the tarball; **`prepublishOnly`** and **`prepack`** both run **`npm run build`** so publish never ships without a fresh copy of the contract and license.
 
    - **Version discipline:** from **`packages/cascades-sdk`**, use **`npm version patch`**, **`minor`**, or **`major`** (updates **`package.json`** and creates a git tag when run in a git checkout). Commit the version bump, then publish. CI today is **`workflow_dispatch`** only — add tag-based triggers in **`.github/workflows/publish-npm.yml`** only if you want automated publishes on specific tags.
-   - **GitHub Actions:** add repository secret **`NPM_TOKEN`**, then **Actions → Publish npm @noirstack/cascades-sdk** (use `dry_run` to validate).
-   - **Local:** **`npm login`** with an account that can publish to the **noirstack** org, then from the SDK repo **`npm publish -w @noirstack/cascades-sdk --access public`** (or **`scripts/publish_npm.ps1`**, which loads **`NPM_TOKEN`** / **`NODE_AUTH_TOKEN`** from the same **`-EnvFile` / `CASCADES_SDK_ENV_FILE`** defaults as **`publish_pypi.ps1`**, typically **`..\cascades\.env.local`**).
-   - **Org ownership:** after publish, run **`npm access ls-packages noirstack`** and in the npm UI confirm **`@noirstack/cascades-sdk`** is under the org; grant the **developers** team read/write as needed. A missing package page or publish denial is usually **org membership / token scope**, not bad `package.json`.
+   - **GitHub Actions:** add repository secret **`NPM_TOKEN`**, then **Actions → Publish npm @cascades-work/cascades-sdk** (use `dry_run` to validate).
+   - **Local:** **`npm login`** with an account that can publish to the **cascades-work** org, then from the SDK repo **`npm publish -w @cascades-work/cascades-sdk --access public`** (or **`scripts/publish_npm.ps1`**, which loads **`NPM_TOKEN`** / **`NODE_AUTH_TOKEN`** from the same **`-EnvFile` / `CASCADES_SDK_ENV_FILE`** defaults as **`publish_pypi.ps1`**, typically **`..\cascades\.env.local`**).
+   - **Org ownership:** after publish, run **`npm access ls-packages noirstack`** and in the npm UI confirm **`@cascades-work/cascades-sdk`** is under the org; grant the **developers** team read/write as needed. A missing package page or publish denial is usually **org membership / token scope**, not bad `package.json`.
