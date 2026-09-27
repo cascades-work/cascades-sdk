@@ -1,0 +1,56 @@
+# Validates the publishable JS surfaces before exposure:
+# - the @noirstack/cascades-sdk npm workspace package (pack + build)
+# - the VS Code extension (compile, typecheck, VSIX packaging)
+#
+# Both run off-host on GitHub runners; nothing here publishes.
+
+name: Validate JS packages
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'packages/**'
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: validate-js-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  npm-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install workspace dependencies
+        run: npm install
+      - name: Pack npm package (dry-run)
+        run: npm run pack:npm -- --dry-run
+
+  extension:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/vscode-extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install extension dependencies
+        run: npm install
+      - name: Compile (tsc)
+        run: npm run compile
+      - name: Typecheck (tsc --noEmit)
+        run: npm run lint
+      - name: Package VSIX (vsce)
+        run: npx vsce package --no-dependencies
