@@ -15,7 +15,7 @@ const DASHBOARD_URL = 'https://cascades.work/dashboard';
 const GITHUB_URL = 'https://github.com/cascades-work/cascades-sdk';
 const ISSUES_URL = `${GITHUB_URL}/issues`;
 
-const CASCADES_VERSION = '2.3.0';
+const CASCADES_VERSION = '2.4.0';
 const EXTENSION_VERSION = '0.1.0';
 
 // ─── Types ────────────────────────────────────────────────
