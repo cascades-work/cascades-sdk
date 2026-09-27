@@ -88,22 +88,24 @@ function apiRequest(
     const isHttps = url.protocol === 'https:';
     const transport = isHttps ? https : http;
 
+    const headers: http.OutgoingHttpHeaders = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'User-Agent': `cascades-vscode/${EXTENSION_VERSION}`,
+    };
+
+    if (sessionCookie) {
+      headers['Cookie'] = `__session=${sessionCookie}`;
+    }
+
     const options: http.RequestOptions = {
       hostname: url.hostname,
       port: url.port || (isHttps ? 443 : 80),
       path: url.pathname + url.search,
       method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': `cascades-vscode/${EXTENSION_VERSION}`,
-      },
+      headers,
       timeout: 15000,
     };
-
-    if (sessionCookie) {
-      options.headers!['Cookie'] = `__session=${sessionCookie}`;
-    }
 
     const req = transport.request(options, (res) => {
       let data = '';
