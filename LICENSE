@@ -1,47 +1,114 @@
-License text copyright © 2024 MariaDB plc, All Rights Reserved. “Business Source License” is a trademark of MariaDB plc.
+Cascades Proprietary License
+SDK & Integration Terms — Version 1.0
 
-Parameters
+Copyright (c) 2026 Noir Stack LLC
+All rights reserved.
 
-Licensor:               Noir Stack LLC
-Licensed Work:          Cascades SDK (Python) — the entire contents of this repository, unless otherwise noted in file-level headers or accompanying notices.
-Additional Use Grant:   Usage is permitted for non-production, evaluation, and internal research purposes. Commercial use, SaaS deployment, or offering the Licensed Work as a service requires a commercial agreement with Noir Stack LLC.
-Change Date:            2030-05-01
-Change License:         GPL-3.0-or-later
+1. Scope
 
-For commercial licensing inquiries, contact Noir Stack LLC via https://noirstack.com
+These terms govern the Cascades SDK, public API contracts, schemas, examples,
+client libraries, developer documentation, and related integration materials
+distributed from this repository (the "SDK Materials").
 
-Notice
+These terms do not grant access to or rights in the private Cascades platform
+source code, execution engine, scheduler, worker implementation, queue
+implementation, persistence implementation, control-plane internals, or other
+private Noir Stack LLC software.
 
-Business Source License 1.1
+2. Permitted use
 
-Terms
+Subject to these terms, Noir Stack LLC grants you a limited, non-exclusive,
+non-transferable license to:
 
-The Licensor hereby grants you the right to copy, modify, create derivative works, redistribute, and make non-production use of the Licensed Work. The Licensor may make an Additional Use Grant, above, permitting limited production use.
+- download and install the SDK Materials;
+- use the SDK Materials to build applications, integrations, automations,
+  plugins, and other software that interoperates with Cascades through
+  documented public interfaces;
+- compile, bundle, and distribute your own software that depends on or calls
+  the SDK Materials; and
+- copy API examples and contract snippets into your own integration code where
+  reasonably necessary to use a documented Cascades interface.
 
-Effective on the Change Date, or the fourth anniversary of the first publicly available distribution of a specific version of the Licensed Work under this License, whichever comes first, the Licensor hereby grants you rights under the terms of the Change License, and the rights granted in the paragraph above terminate.
+Your application or integration remains your property. Cascades and the SDK
+Materials remain the property of Noir Stack LLC.
 
-If your use of the Licensed Work does not comply with the requirements currently in effect as described in this License, you must purchase a commercial license from the Licensor, its affiliated entities, or authorized resellers, or you must refrain from using the Licensed Work.
+3. Restrictions
 
-All copies of the original and modified Licensed Work, and derivative works of the Licensed Work, are subject to this License. This License applies separately for each version of the Licensed Work and the Change Date may vary for each version of the Licensed Work released by Licensor.
+Except with prior written permission from Noir Stack LLC, you may not:
 
-You must conspicuously display this License on each original or modified copy of the Licensed Work. If you receive the Licensed Work in original or modified form from a third party, the terms and conditions set forth in this License apply to your use of that work.
+- modify, fork, alter, adapt, or create a derivative distribution of the SDK
+  Materials;
+- republish, mirror, redistribute, sublicense, sell, rent, lease, or make the
+  SDK Materials available as a standalone SDK, library, API product, template,
+  or competing developer platform;
+- remove or obscure copyright, ownership, attribution, or proprietary notices;
+- use the SDK Materials to reconstruct, derive, reverse engineer, or obtain the
+  private Cascades platform implementation, except where such a restriction is
+  prohibited by applicable law;
+- represent the SDK Materials as your own original work; or
+- use Cascades or Noir Stack names, logos, marks, or visual identity in a way
+  that implies sponsorship, endorsement, affiliation, or ownership not
+  authorized in writing.
 
-Any use of the Licensed Work in violation of this License will automatically terminate your rights under this License for the current and all other versions of the Licensed Work.
+4. Public contract boundary
 
-This License does not grant you any right in any trademark or logo of Licensor or its affiliates (provided that you may use a trademark or logo of Licensor as expressly required by this License).
+Only interfaces explicitly identified in this repository as part of the public
+Cascades developer contract are supported integration surfaces.
 
-TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON AN “AS IS” BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND TITLE. MariaDB hereby grants you permission to use this License’s text to license your works, and to refer to it using the trademark “Business Source License”, as long as you comply with the Covenants of Licensor below.
+The presence of an implementation detail, undocumented endpoint, generated
+artifact, test fixture, or incidental symbol does not make it part of the
+public contract.
 
-### Covenants of Licensor
+5. Contributions
 
-In consideration of the right to use this License’s text and the “Business Source License” name and trademark, Licensor covenants to MariaDB, and to all other recipients of the licensed work to be provided by Licensor:
+You may prepare modifications solely for the purpose of submitting them to Noir
+Stack LLC as a proposed contribution. This does not grant a right to publish or
+redistribute a modified version of the SDK Materials.
 
-1. To specify as the Change License the GPL Version 2.0 or any later version, or a license that is compatible with GPL Version 2.0 or a later version, where “compatible” means that software provided under the Change License can be included in a program with software provided under GPL Version 2.0 or a later version. Licensor may specify additional Change Licenses without limitation.
+6. Trademarks and brand assets
 
-2. To either: (a) specify an additional grant of rights to use that does not impose any additional restriction on the right granted in this License, as the Additional Use Grant; or (b) insert the text “None” to specify a Change Date. Not to modify this License in any other way.
+No trademark, trade dress, logo, or brand rights are granted by these terms.
+Cascades and Noir Stack names, marks, logos, and associated brand materials
+remain proprietary to Noir Stack LLC unless a specific written agreement says
+otherwise.
 
-### Notice
+7. Third-party materials
 
-The Business Source License (this document, or the “License”) is not an Open Source license. However, the Licensed Work will eventually be made available under an Open Source License, as stated in this License.
+Third-party software and materials remain subject to their respective licenses
+and rights. These terms do not grant rights that Noir Stack LLC does not own.
 
-For more information on the Business Source License, see https://mariadb.com/bsl-faq-adopting/
+8. Ownership
+
+The SDK Materials are licensed, not sold. Noir Stack LLC retains all right,
+title, and interest in the SDK Materials and associated intellectual property,
+except for identified third-party materials.
+
+9. No warranty
+
+THE SDK MATERIALS ARE PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTIES
+OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+
+10. Limitation of liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, NOIR STACK LLC WILL NOT BE LIABLE FOR
+ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE
+DAMAGES, OR FOR LOSS OF DATA, PROFITS, REVENUE, OR BUSINESS OPPORTUNITY,
+ARISING FROM OR RELATED TO THE SDK MATERIALS OR THEIR USE.
+
+11. Termination
+
+Your rights under these terms terminate automatically if you materially violate
+them and do not cure the violation after notice where a cure is reasonably
+possible.
+
+12. Additional permissions
+
+Additional modification, redistribution, sublicensing, commercial SDK
+distribution, white-label, or other rights may be granted separately in
+writing by Noir Stack LLC.
+
+For licensing inquiries:
+info@noirstack.com
+https://cascades.work
+https://noirstack.com

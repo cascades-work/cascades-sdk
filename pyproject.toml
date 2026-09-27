@@ -8,7 +8,7 @@ version = "0.3.1"
 description = "Python SDK for Cascades: capture-mode @task/@flow DAG compiler and thin HTTP client for the control plane"
 readme = "README.md"
 requires-python = ">=3.8"
-license = "BUSL-1.1"
+license = { file = "LICENSE" }
 authors = [
   { name = "Noir Stack LLC" }
 ]
@@ -38,10 +38,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/no1rstack/cascades-sdk"
-Documentation = "https://github.com/no1rstack/cascades-sdk#readme"
-Repository = "https://github.com/no1rstack/cascades-sdk"
-Issues = "https://github.com/no1rstack/cascades-sdk/issues"
+Homepage = "https://github.com/cascades-work/cascades-sdk"
+Documentation = "https://github.com/cascades-work/cascades-sdk#readme"
+Repository = "https://github.com/cascades-work/cascades-sdk"
+Issues = "https://github.com/cascades-work/cascades-sdk/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

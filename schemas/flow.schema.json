@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cascades.work/schemas/flow.schema.json",
+  "$comment": "Derived from components.schemas.Workflow in api/openapi.yaml.",
+  "title": "Cascades Flow",
+  "type": "object",
+  "properties": {
+    "id": {"type": "string"},
+    "name": {"type": "string"},
+    "description": {"type": "string"},
+    "version": {"type": "string"},
+    "collectors": {"type": "array", "items": {"type": "string"}},
+    "schedule": {"type": ["string", "null"]},
+    "inputs": {"type": "object"},
+    "status": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": true
+}

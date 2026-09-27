@@ -14,19 +14,19 @@
     },
     "./api.yaml": "./contracts/api.yaml"
   },
-  "license": "BUSL-1.1",
+  "license": "SEE LICENSE IN LICENSE",
   "author": {
-    "name": "Noir Stack",
-    "url": "https://github.com/no1rstack/cascades-sdk"
+    "name": "Noir Stack LLC",
+    "url": "https://github.com/cascades-work/cascades-sdk"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/no1rstack/cascades-sdk.git",
+    "url": "https://github.com/cascades-work/cascades-sdk.git",
     "directory": "packages/cascades-sdk"
   },
-  "homepage": "https://github.com/no1rstack/cascades-sdk/tree/main/packages/cascades-sdk",
+  "homepage": "https://github.com/cascades-work/cascades-sdk/tree/main/packages/cascades-sdk",
   "bugs": {
-    "url": "https://github.com/no1rstack/cascades-sdk/issues"
+    "url": "https://github.com/cascades-work/cascades-sdk/issues"
   },
   "publishConfig": {
     "access": "public",

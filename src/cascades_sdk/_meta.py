@@ -1,6 +1,6 @@
 """Release, contract, and product metadata.
 
-When the Cascades platform bumps ``info.version`` in ``contracts/api.yaml``, update
+When the Cascades platform bumps ``info.version`` in ``api/openapi.yaml``, update
 ``API_CONTRACT_VERSION`` here to match (see ``tests/test_contract_parity.py``).
 """
 
@@ -10,7 +10,7 @@ from typing import Dict
 __version__ = "0.4.0"
 
 # Must match ``info.version`` in ``contracts/api.yaml`` (SDK ↔ platform HTTP boundary).
-API_CONTRACT_VERSION = "1.0.0"
+API_CONTRACT_VERSION = "2.4.0"
 
 # --- Library / product markers (internal + optional HTTP telemetry) ---
 
@@ -18,7 +18,7 @@ SDK_NAME = "cascades-sdk-python"
 PRODUCT_NAME = "Cascades"
 COMPANY_NAME = "Noir Stack LLC"
 SDK_MAINTAINER = "Hira Barton"
-SDK_REPOSITORY_URL = "https://github.com/no1rstack/cascades-sdk"
+SDK_REPOSITORY_URL = "https://github.com/cascades-work/cascades-sdk"
 SDK_DOCS_URL = "https://cascades.work/docs"
 SDK_GETTING_STARTED_URL = f"{SDK_DOCS_URL}/getting-started"
 SDK_AUTH_URL = f"{SDK_DOCS_URL}/authentication"

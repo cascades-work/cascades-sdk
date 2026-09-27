@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cascades.work/schemas/task.schema.json",
+  "$comment": "Derived from components.schemas.DagDefinition.nodes in api/openapi.yaml.",
+  "title": "Cascades Task",
+  "type": "object",
+  "required": ["id", "type"],
+  "properties": {
+    "id": {"type": "string"},
+    "type": {"type": "string"},
+    "data": {"type": "object"}
+  },
+  "additionalProperties": true
+}

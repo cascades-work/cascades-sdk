@@ -4,144 +4,104 @@
   </a>
 </p>
 
-# Cascades SDK (Python)
+# Cascades SDK
 
-Official Python client for **[Cascades](https://cascades.work)** — a **governed execution** system. This project is licensed under the **Business Source License 1.1 (BUSL 1.1)**; see **[License](#license)**. The package provides **capture-mode authoring** (`@task` / `@flow`) to build a **serializable DAG**, plus an **HTTP client** aligned with the mirrored OpenAPI contract.
+The public developer surface for **Cascades**. This repository contains the
+supported API contract, SDKs, schemas, examples, MCP/editor integrations, and
+developer documentation needed to build with Cascades without exposing the
+private application implementation.
 
-**PyPI:** [`cascades-sdk`](https://pypi.org/project/cascades-sdk/) · **Repository:** [`cascades-work/cascades-sdk`](https://github.com/cascades-work/cascades-sdk) · **HTTP contract (mirrored):** [`contracts/api.yaml`](./contracts/api.yaml) (source of truth: [`cascades-work/cascades`](https://github.com/cascades-work/cascades/blob/main/contracts/api.yaml))
+The full Cascades platform repository remains private. See
+[CONTRACT.md](./CONTRACT.md) for the public/private boundary.
 
-## What this library is (and is not)
+## Repository map
 
-| In scope | Out of scope (handled by the Cascades platform / your deployment) |
-|----------|----------------------------------------------------------------------|
-| `@task` / `@flow` decorators and **capture-mode** execution to record a DAG | Worker execution, retries, queues, scheduling |
-| **Deterministic** DAG JSON (`build_dag_from_flow`, canonicalization helpers) | Routes omitted from `contracts/api.yaml` (see platform `/openapi.json` for the full app) |
-| **`CascadesClient`** — every path in `contracts/api.yaml` (workflows, runs SSE, integrations, system version) | Auth0 login UI, Stripe webhooks, internal admin routes |
-| **Auth helpers** (`SessionCookieAuth`, `CookieHeaderAuth`, `HeaderAuth`, `CompositeAuth`) matching contract security | Issuing session cookies (browser / Auth0 flow) |
-| **`wait_for_completion`** / **`wait_for_completion_async`** — block on **SSE** (`GET /api/runs/{id}/stream`) until a terminal run status | In-process orchestration engine inside this wheel |
+```text
+cascades-sdk/
+├── README.md
+├── CONTRACT.md
+├── LICENSE
+├── SECURITY.md
+├── docs/
+│   ├── concepts/
+│   ├── authentication/
+│   ├── flows/
+│   ├── executions/
+│   └── plugins/
+├── api/
+│   ├── openapi.yaml
+│   └── schemas/
+├── sdk/
+│   ├── typescript/
+│   ├── python/
+│   └── java/
+├── examples/
+│   ├── hello-flow/
+│   ├── webhook-trigger/
+│   ├── scheduled-flow/
+│   └── ai-workflow/
+├── schemas/
+│   ├── flow.schema.json
+│   ├── task.schema.json
+│   └── execution.schema.json
+└── cli/
+    └── public client interface
+```
 
-The SDK does **not** ship Airflow/Argo/BPMN adapters, W3C PROV builders, CloudEvents emitters, or OpenTelemetry instrumentation — those belong in **documentation or separate packages** if you add them later.
+Existing implementations remain in place for compatibility:
 
-## Install
+- Python SDK: `src/cascades_sdk/`
+- JS/TS contract package: `packages/cascades-sdk/`
+- MCP server: `packages/mcp-server/`
+- VS Code extension: `packages/vscode-extension/`
+
+## Contract
+
+The canonical HTTP contract is authored in the private Cascades platform at
+`apis/cascades.openapi.yaml` and mirrored here to `api/openapi.yaml` and
+`contracts/api.yaml`.
+
+Current API contract version: **2.4.0**.
+
+## Python
 
 ```bash
 pip install cascades-sdk
 ```
 
-Import namespace: **`cascades_sdk`** (not `cascade_sdk`). Legacy wheel name **`noirstack-cascade-sdk`** is obsolete; use **`cascades-sdk`** only.
-
-## Contract version parity
-
-`cascades_sdk.API_CONTRACT_VERSION` must match `info.version` in `contracts/api.yaml`. When the platform bumps that field, mirror the YAML and update `src/cascades_sdk/_meta.py` before releasing (`tests/test_contract_parity.py` enforces this).
-
-## Quick start
-
 ```python
-from cascades_sdk import CascadesClient, SessionCookieAuth, wait_for_completion
-from cascades_sdk.compiler import build_dag_from_flow
+from cascades_sdk import CascadesClient, SessionCookieAuth
 
-# Session value from your Auth0-backed deployment (__session by default).
 client = CascadesClient(
     "https://your-cascades-host",
-    SessionCookieAuth("paste-session-cookie-value-here"),
+    SessionCookieAuth("session-cookie-value"),
 )
-
-version = client.get_public_api_version()  # GET /api/system/version (no auth required)
-# Response dicts use the contract's camelCase keys (e.g. runId), not snake_case — same JSON as OpenAPI.
-accepted = client.submit_workflow_run({"workflowId": "your-catalog-id"})
-run_id = accepted["runId"]
-
-# Blocks on SSE until SUCCESS / FAILED / CANCELLED (see contracts/api.yaml Runs tag).
-terminal_event = wait_for_completion(client, run_id, timeout=3600.0)
-print(terminal_event)
 ```
 
-**Async:** `from cascades_sdk import wait_for_completion_async` and `await wait_for_completion_async(client, run_id)`.
+## Build with Cascades, not inside Cascades
 
-**Optional header auth** (only if your tenant documents it): `CompositeAuth(SessionCookieAuth("..."), HeaderAuth({"X-Custom-Token": "..."}))`.
+External applications should depend on documented API operations, schemas,
+SDKs, plugins, MCP tools, and supported extension points. Scheduler, execution
+engine, workers, queues, persistence, private control-plane internals, and
+deployment implementation are not public API.
 
-**Optional product markers:** pass `vendor_headers=True` to `CascadesClient` to add stable `X-SDK-*` / `X-Product` / `X-Vendor` headers (see `vendor_telemetry_headers()` in `cascades_sdk._meta`). The default `User-Agent` already names the SDK, **Cascades**, repo URL, and **Noir Stack LLC**.
-
-**Aliases:** `CascadeClient` and `CascadeSDKError` are kept for backward compatibility; prefer `CascadesClient` / `CascadesSDKError`.
-
-## Capture mode and data at task boundaries
-
-Under `@flow`, task calls are intercepted so the compiler can record **nodes and edges** without running your real side effects on the machine where you compile. Values that end up in the DAG should be **JSON-friendly** (e.g. `str`, `int`, `float`, `bool`, `dict`, `list`, `None`). Avoid pushing live handles (DB connections, open files, arbitrary class instances) across task boundaries if they cannot serialize the way your control plane expects.
-
-`build_dag_from_flow(flow, flow_inputs=None)` — pass `flow_inputs` when the flow function has parameters you need to bind for capture.
-
-## HTTP API surface
-
-The client mirrors **`contracts/api.yaml`** only (16 paths), including:
-
-- `get_public_api_version()` → `GET /api/system/version`
-- `submit_workflow_run(body)` → `POST /api/workflows/run`
-- `clone_catalog_workflow(body)` → `POST /api/workflows/clone`
-- `iter_run_stream_events(run_id, since=..., task_since=...)` → `GET /api/runs/{id}/stream` (SSE `RunStreamEvent` payloads)
-- `save_*_integration` / `test_*_integration` → `POST /api/integrations/...`
-
-JSON keys match the deployment and **`contracts/api.yaml`** (camelCase). That is deliberate for a thin client: payloads align with the HTTP contract rather than idiomatic Python dict style. Typed shapes live under `cascades_sdk.types` for common response bodies.
-
-## HTTP contract mirror (maintainers)
-
-Canonical upstream: **[`cascades-work/cascades` → `contracts/api.yaml`](https://github.com/cascades-work/cascades/blob/main/contracts/api.yaml)**. Do not hand-edit the copy here; sync and verify. See **[`contracts/README.md`](./contracts/README.md)**, **`RELEASE.md`**, and:
+## Contract synchronization
 
 ```bash
-./scripts/sync_contract.sh ../cascades/contracts/api.yaml
-# or: make sync-contract
+python scripts/sync_contract.py ../cascades/apis/cascades.openapi.yaml
+python scripts/verify_contract_mirror.py --against ../cascades/apis/cascades.openapi.yaml
 ```
 
-## Publish to PyPI (maintainers)
+## Security
 
-**Preferred:** GitHub **Actions → Publish to PyPI** (`workflow_dispatch`) using a [trusted publisher](https://docs.pypi.org/trusted-publishers/) — see **`RELEASE.md`** for the one-time PyPI UI steps (no `PYPI_*` secret stored in GitHub).
-
-**Local / token file:** build, check, then upload with Twine:
-
-```bash
-python -m build
-python -m twine check dist/*
-python -m twine upload dist/*
-```
-
-On Windows, load variables from a `.env`-style file (default: `..\cascades\.env.local`; override with **`-EnvFile`** or **`CASCADES_SDK_ENV_FILE`**):
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\publish_pypi.ps1
-# or:  ... -EnvFile "C:\path\to\.env.local"
-```
-
-Use **`PYPI_USERNAME`** + **`PYPI_API_KEY`**, or **`TWINE_USERNAME`** + **`TWINE_PASSWORD`**, or **`PYPI_TOKEN`** / **`PYPI_API_TOKEN`** (script maps token to `__token__` + password). Optional **`PYPI_URL`**: use an **upload** endpoint (e.g. `https://upload.pypi.org/legacy/` or TestPyPI’s upload URL). Do **not** use a project page URL (`https://pypi.org/project/...`).
-
-## Publish to npm (maintainers)
-
-Optional scoped npm package **`@noirstack/cascades-sdk`** (mirrored **`contracts/api.yaml`**, **`LICENSE`**, ESM **`index.js`** / **`index.d.ts`**) — the tarball is limited by the **`files`** array, and **`prepack`** / **`prepublishOnly`** run **`npm run build`** before pack/publish. See **`packages/cascades-sdk/`** and **`RELEASE.md`**. PyPI **`cascades-sdk`** remains the Python client.
-
-**Try a tarball from the repo root** (requires **`npm install`** once so the workspace resolves):
-
-```bash
-npm run pack:npm -- --dry-run
-# equivalent: npm pack -w @noirstack/cascades-sdk --dry-run
-```
-
-Or **`cd packages/cascades-sdk`** and run **`npm pack`** / **`npm pack --dry-run`** as usual.
-
-**CI:** Actions → **Publish npm @noirstack/cascades-sdk** (requires **`NPM_TOKEN`** repository secret).
-
-**Local:** same default env file as PyPI (`..\cascades\.env.local`, or **`CASCADES_SDK_ENV_FILE`** / **`-EnvFile`**). Set **`NPM_TOKEN`** or **`NODE_AUTH_TOKEN`**.
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\publish_npm.ps1
-# Dry run:  ...\publish_npm.ps1 -DryRun
-```
-
-## Contributing
-
-Issues and PRs: **[github.com/cascades-work/cascades-sdk](https://github.com/cascades-work/cascades-sdk/issues)**. For **compiler** edge cases, include a **minimal** `@flow` / `@task` snippet and the DAG you expected vs what `build_dag_from_flow` produced.
+See [SECURITY.md](./SECURITY.md).
 
 ## License
 
-This project is licensed under the **Business Source License 1.1 (BUSL 1.1)**. See [`LICENSE`](./LICENSE) for full terms.
+This repository is distributed under the **Cascades Proprietary License —
+SDK & Integration Terms**. See [LICENSE](./LICENSE).
 
-Non-production, evaluation, and internal research use are permitted under the **Additional Use Grant** in `LICENSE`. Commercial use, SaaS deployment, or offering the Licensed Work as a service requires a commercial agreement with **Noir Stack LLC** — **[https://noirstack.com](https://noirstack.com)**. On the **Change Date** (see `LICENSE`; **2030-05-01**, subject to the four-year rule in the license text), the Licensed Work converts to **GPL-3.0-or-later**.
-
-The Cascades SDK is part of the Cascades system and follows the same licensing model as the platform unless otherwise explicitly stated.
+You may use these SDK Materials to build your own applications, integrations,
+automations, and plugins against documented Cascades interfaces. The license
+does not grant rights to the private Cascades platform source or permission to
+redistribute a modified or standalone Cascades SDK.
