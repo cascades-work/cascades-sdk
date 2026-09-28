@@ -101,7 +101,11 @@ def main() -> int:
             errors.append(f"required public directory is missing or wrong type: {rel}")
 
     allowed_roots = set(public_roots) | set(infrastructure_roots)
-    present_roots = {p.name for p in ROOT.iterdir() if p.is_dir()}
+    present_roots = {
+        p.name
+        for p in ROOT.iterdir()
+        if p.is_dir() and p.name not in {".git"}
+    }
     undeclared = sorted(present_roots - allowed_roots)
     if undeclared:
         errors.append(
