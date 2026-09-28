@@ -11,20 +11,20 @@
     "version_source": "openapi.info.version"
   },
   "required_artifacts": [
-    "LICENSE",
-    "CONTRACT.md",
-    "README.md",
-    "SECURITY.md",
-    "api/openapi.yaml",
-    "contracts/api.yaml",
-    "schemas",
-    "docs",
-    "examples",
-    "src/cascades_sdk",
-    "packages/cascades-sdk",
-    "packages/mcp-server",
-    "packages/vscode-extension",
-    "cli"
+    {"path": "LICENSE", "type": "file"},
+    {"path": "CONTRACT.md", "type": "file"},
+    {"path": "README.md", "type": "file"},
+    {"path": "SECURITY.md", "type": "file"},
+    {"path": "api/openapi.yaml", "type": "file"},
+    {"path": "contracts/api.yaml", "type": "file"},
+    {"path": "schemas", "type": "directory"},
+    {"path": "docs", "type": "directory"},
+    {"path": "examples", "type": "directory"},
+    {"path": "src/cascades_sdk", "type": "directory"},
+    {"path": "packages/cascades-sdk", "type": "directory"},
+    {"path": "packages/mcp-server", "type": "directory"},
+    {"path": "packages/vscode-extension", "type": "directory"},
+    {"path": "cli", "type": "directory"}
   ],
   "public_roots": [
     "api",
@@ -36,6 +36,11 @@
     "schemas",
     "sdk",
     "src"
+  ],
+  "repository_infrastructure_roots": [
+    ".github",
+    "scripts",
+    "tests"
   ],
   "private_roots_forbidden": [
     "scheduler",
@@ -56,6 +61,7 @@
     "major": "intentional incompatible public contract change"
   },
   "rules": [
+    "Top-level directories are denied unless explicitly declared as a public root or repository infrastructure root.",
     "Only explicitly declared public artifacts are supported integration surfaces.",
     "Undocumented endpoints, generated artifacts, fixtures, incidental symbols, and private implementation details are not promoted into the public contract by presence alone.",
     "Private implementation roots must not be copied into this SDK repository.",
