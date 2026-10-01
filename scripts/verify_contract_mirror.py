@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Verify Cascades public OpenAPI mirrors, optionally against the private platform."""
 
-from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
