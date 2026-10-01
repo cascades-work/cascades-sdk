@@ -1,0 +1,58 @@
+# Cascades SDK — GitLab CI
+#
+# Mirrors the GitHub Actions "contract-mirror" workflow
+# (.github/workflows/contract-mirror.yml) so the public SDK's HTTP contract stays
+# exercised while GitHub-hosted runners are unavailable. Nothing here publishes.
+#
+# Two checks:
+#   1) The SDK's two public mirrors agree (api/openapi.yaml == contracts/api.yaml).
+#   2) They match the canonical platform contract
+#      (cascades-work/cascades:apis/cascades.openapi.yaml) at the pinned ref.
+#
+# Both repos live in the cascades-work group on git.noirstack.com and are not
+# anonymously readable, so check (2) clones the platform with the pipeline's
+# CI_JOB_TOKEN. This requires the cascades-work/cascades project to allow
+# job-token access from this project:
+#   Settings → CI/CD → Token Access → "Allow access to this project with a job token".
+
+stages:
+  - verify
+
+contract-mirror:
+  stage: verify
+  tags: [vps, podman, production]
+  script:
+    # 1) Public mirrors must agree with each other (stdlib only, no network).
+    - |
+      set -euo pipefail
+      echo "== public mirror internal consistency =="
+      python3 scripts/verify_contract_mirror.py
+
+    # 2) Resolve the platform ref: contracts/UPSTREAM_COMMIT pins it, else main.
+    - |
+      set -euo pipefail
+      REF="main"
+      if [ -f contracts/UPSTREAM_COMMIT ]; then
+        line="$(grep -v '^[[:space:]]*#' contracts/UPSTREAM_COMMIT | grep -v '^[[:space:]]*$' | head -n1 | tr -d '[:space:]')"
+        [ -n "$line" ] && REF="$line"
+      fi
+      echo "platform ref: ${REF}"
+
+    # 3) Minimal fetch of the platform's apis/cascades.openapi.yaml (single file,
+    #    ~hundreds of KB) and verify byte-parity against it.
+    - |
+      set -euo pipefail
+      echo "== clone platform apis/ at ${REF} and verify parity =="
+      rm -rf platform
+      mkdir platform
+      git -C platform init -q
+      git -C platform remote add origin "https://gitlab-ci-token:${CI_JOB_TOKEN}@git.noirstack.com/cascades-work/cascades.git"
+      git -C platform fetch -q --depth 1 --filter=blob:none origin "${REF}"
+      git -C platform checkout -q FETCH_HEAD -- apis/cascades.openapi.yaml
+      python3 scripts/verify_contract_mirror.py --against platform/apis/cascades.openapi.yaml
+
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
