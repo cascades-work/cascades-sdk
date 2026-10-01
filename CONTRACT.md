@@ -72,3 +72,19 @@ Private platform change
 Do not copy private implementation code into this repository to satisfy a
 public integration requirement. Add or extend a contract, schema, SDK method,
 plugin interface, or documented endpoint instead.
+
+
+## Machine-readable enforcement
+
+The repository root contains `contract.manifest.json`, a deny-by-default declaration of the supported public surface and forbidden private implementation roots.
+
+`scripts/validate_contract_boundary.py` validates that:
+
+- required public artifacts remain present;
+- forbidden private implementation roots are not copied into the SDK repository;
+- the canonical and compatibility OpenAPI mirrors remain identical; and
+- the published API contract carries a semantic-version-shaped version.
+
+The `Public contract boundary` GitHub Actions workflow runs this validator on pull requests and on pushes to `main`.
+
+These checks enforce the technical boundary. They do not replace or amend the legal terms in `LICENSE`; the license remains the authority for permitted use and redistribution.
