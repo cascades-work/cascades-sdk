@@ -43,7 +43,6 @@ components:
         name: { type: string }
         description: { type: string }
         version: { type: string }
-        collectors: { type: array, items: { type: string } }
         schedule: { type: string, nullable: true }
         inputs: { type: object }
         status: { type: string }
@@ -61,34 +60,6 @@ components:
         outputs: { type: object }
         steps: { type: array, items: { type: object } }
         error: { type: string }
-
-    OsintIntakeRequest:
-      type: object
-      required: [connectors]
-      properties:
-        investigationId: { type: string, description: "Judicium investigation ID" }
-        connectors:
-          type: array
-          items:
-            type: object
-            properties:
-              sourceTool: { type: string, enum: [spiderfoot, maltego, shodan, censys, urlscan, virustotal, whois, github, api, database] }
-              baseUrl: { type: string }
-              apiKey: { type: string }
-              filePath: { type: string }
-              fileFormat: { type: string, enum: [csv, mtz, xlsx] }
-        deduplicate: { type: boolean, default: true }
-        autoSubmit: { type: boolean, default: true }
-
-    OsintIntakeResult:
-      type: object
-      properties:
-        executionId: { type: string }
-        totalCollected: { type: integer }
-        newFindings: { type: integer }
-        duplicatesSkipped: { type: integer }
-        submittedToJudicium: { type: integer }
-        errors: { type: array, items: { type: string } }
 
     DagDefinition:
       type: object
@@ -201,7 +172,7 @@ paths:
   /api/v1/workflows/{id}/run:
     post:
       operationId: runNamedWorkflow
-      summary: Run a named workflow (investigation, evidence-verification, etc.)
+      summary: Run a named workflow
       tags: [Workflows]
       security: [{BearerAuth: [cascades:workflows:execute]}]
       parameters:
@@ -275,67 +246,6 @@ paths:
       responses:
         "202":
           description: Automation triggered
-
-  /api/v1/osint/intake:
-    post:
-      operationId: runOsintIntake
-      summary: Execute OSINT intake pipeline
-      description: Poll configured OSINT connectors, normalize findings, deduplicate, and submit to Judicium
-      tags: [OSINT]
-      security: [{BearerAuth: [cascades:workflows:execute]}]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OsintIntakeRequest"
-      responses:
-        "202":
-          description: OSINT intake result
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OsintIntakeResult"
-
-  /api/v1/osint/intake/{id}:
-    get:
-      operationId: getOsintIntakeResult
-      summary: Get OSINT intake execution result
-      tags: [OSINT]
-      security: [{BearerAuth: [cascades:executions:read]}]
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: string }
-      responses:
-        "200":
-          description: Intake result
-
-  /api/v1/osint/connectors:
-    get:
-      operationId: listConnectors
-      summary: List registered OSINT connectors
-      tags: [OSINT]
-      security: [{BearerAuth: [cascades:workflows:read]}]
-      responses:
-        "200":
-          description: List of connectors
-
-  /api/v1/osint/connectors/{source}/validate:
-    post:
-      operationId: validateConnector
-      summary: Validate an OSINT connector configuration
-      tags: [OSINT]
-      security: [{BearerAuth: [cascades:workflows:read]}]
-      parameters:
-        - name: source
-          in: path
-          required: true
-          schema: { type: string }
-      responses:
-        "200":
-          description: Validation result
 
   /api/v1/triggers:
     get:
